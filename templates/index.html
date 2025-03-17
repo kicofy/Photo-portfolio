@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人摄影作品集</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                    },
+                },
+            },
+            darkMode: 'class',
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        
+        body.loading {
+            opacity: 0.6;
+        }
+        
+        /* 暗黑模式样式 */
+        .dark body {
+            background-color: #0f172a; /* 更深的蓝黑色背景 */
+            color: #e2e8f0;
+        }
+        
+        .dark .bg-white {
+            background-color: #1e293b; /* 卡片背景色 */
+        }
+        
+        .dark .bg-gray-50 {
+            background-color: #0f172a; /* 主背景色 */
+        }
+        
+        .dark .bg-gray-100 {
+            background-color: #1e293b; /* 轻微强调背景 */
+        }
+        
+        .dark .text-gray-800 {
+            color: #f1f5f9;
+        }
+        
+        .dark .text-gray-700 {
+            color: #e2e8f0;
+        }
+        
+        .dark .text-gray-600 {
+            color: #cbd5e1;
+        }
+        
+        .dark .text-gray-500 {
+            color: #94a3b8;
+        }
+        
+        .dark .text-gray-400 {
+            color: #64748b;
+        }
+        
+        .dark .border-gray-300 {
+            border-color: #334155;
+        }
+        
+        .dark .border-gray-200 {
+            border-color: #1e293b;
+        }
+        
+        .dark .shadow-sm {
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+        }
+        
+        .dark .shadow-md {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
+        }
+        
+        /* 暗黑模式下卡片样式 */
+        .dark .photo-card {
+            background-color: #1e293b;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .dark .photo-card:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 暗黑模式下图片容器样式 */
+        .dark .photo-img-container {
+            background-color: #0f172a; /* 深色背景 */
+        }
+        
+        /* 暗黑模式下图片信息样式 */
+        .dark .photo-info {
+            background-color: #1e293b;
+        }
+        
+        /* 暗黑模式下搜索和过滤样式 */
+        .dark input, .dark select {
+            background-color: #334155;
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+        
+        .dark input::placeholder {
+            color: #94a3b8;
+        }
+        
+        .dark input:focus, .dark select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+        }
+        
+        /* 暗黑模式下按钮样式 */
+        .dark button.bg-gray-100 {
+            background-color: #334155;
+            color: #e2e8f0;
+        }
+        
+        .dark button.bg-gray-100:hover {
+            background-color: #475569;
+        }
+        
+        .dark button.bg-gray-200 {
+            background-color: #475569;
+            color: #e2e8f0;
+        }
+        
+        .dark button.bg-gray-200:hover {
+            background-color: #64748b;
+        }
+        
+        .photo-card {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-in-out;
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .photo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .photo-card:hover .photo-overlay {
+            opacity: 1;
+        }
+        
+        .photo-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 60%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 1.5rem;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: rgba(0, 0, 0, 0.95);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal.show {
+            opacity: 1;
+        }
+        
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 90%;
+            max-height: 90%;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 0.3s ease;
+            object-fit: contain; /* 确保图片按原比例显示 */
+        }
+        
+        .modal-content.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: #f1f1f1;
+            font-size: 35px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+            z-index: 60;
+        }
+        
+        .close:hover,
+        .close:focus {
+            color: #bbb;
+            text-decoration: none;
+        }
+        
+        .modal-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .modal-control-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .modal-control-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .masonry-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            width: 100%;
+            justify-content: center;
+            opacity: 1;
+            transition: opacity 0.8s ease;
+            transform: translateY(0);
+        }
+        
+        .masonry-grid.loaded {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .masonry-column {
+            flex: 0 0 auto; /* 改为固定宽度，不伸缩 */
+            width: 300px; /* 固定列宽 */
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        @media (min-width: 768px) {
+            /* 在中等屏幕上，每列宽度稍微调整 */
+            .masonry-column {
+                width: 280px;
+            }
+        }
+        
+        @media (min-width: 1280px) {
+            /* 在大屏幕上，可以稍微窄一点，放入更多列 */
+            .masonry-column {
+                width: 260px;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            /* 在小屏幕上保持响应式，充满容器 */
+            .masonry-column {
+                flex: 1 0 100%;
+                max-width: 450px;
+            }
+        }
+        
+        .masonry-item {
+            margin-bottom: 0;
+            break-inside: avoid;
+            display: block;
+            width: 100%;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        /* 修改图片容器样式 */
+        .photo-img-container {
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            background-color: #f5f5f5;
+            min-height: 150px; /* 确保容器有最小高度 */
+            cursor: pointer; /* 添加指针样式表明可点击 */
+        }
+        
+        .photo-img-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: contain; /* 默认使用contain确保图片完整显示 */
+            transition: opacity 0.3s ease;
+            opacity: 0;
+        }
+        
+        /* 针对宽图特殊处理，避免底部空白 */
+        .photo-img-container.wide-image {
+            background-color: #000; /* 宽图底色改为黑色 */
+        }
+        
+        .photo-img-container.wide-image img {
+            object-fit: cover; /* 宽图使用cover填满容器 */
+            height: 100%; /* 确保填满整个容器高度 */
+        }
+        
+        .photo-img-container img.loaded {
+            opacity: 1;
+        }
+        
+        /* 加载错误样式 */
+        .photo-img-container.load-error {
+            background-color: #f8d7da;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+        }
+        
+        .photo-img-container.load-error::before {
+            content: "\f071";
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            font-size: 2rem;
+            color: #842029;
+        }
+        
+        /* 添加图片信息样式 */
+        .photo-info {
+            padding: 12px;
+            background-color: white;
+        }
+        
+        .scroll-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 40;
+        }
+        
+        .scroll-top.show {
+            opacity: 1;
+        }
+        
+        .loader {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 确保图片容器是模态框的中心 */
+        .modal .flex.items-center.justify-center {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 暗黑模式下模态框样式 */
+        .dark .modal {
+            background-color: rgba(0, 0, 0, 0.95);
+        }
+        
+        .dark .modal-content {
+            filter: brightness(0.9);
+        }
+        
+        .dark .modal-control-btn {
+            background-color: rgba(30, 41, 59, 0.7);
+        }
+        
+        .dark .modal-control-btn:hover {
+            background-color: rgba(51, 65, 85, 0.8);
+        }
+        
+        /* 暗黑模式下过滤面板样式 */
+        .dark #filterPanel {
+            border-color: #334155;
+        }
+        
+        .dark .file-type-filter:checked {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+        }
+        
+        /* 暗黑模式下滚动到顶部按钮 */
+        .dark .scroll-top {
+            background-color: rgba(30, 41, 59, 0.8);
+        }
+        
+        .dark .scroll-top:hover {
+            background-color: rgba(51, 65, 85, 0.9);
+        }
+        
+        /* 暗黑模式下加载错误样式 */
+        .dark .photo-img-container.load-error {
+            background-color: #4a1e1c;
+        }
+        
+        .dark .photo-img-container.load-error::before {
+            color: #ef4444;
+        }
+        
+        /* 暗黑模式下导航栏样式 */
+        .dark nav.bg-white {
+            background-color: #1e293b;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 暗黑模式下页脚样式 */
+        .dark footer.bg-gray-800 {
+            background-color: #0f172a;
+            border-top: 1px solid #334155;
+        }
+        
+        .dark footer .border-gray-700 {
+            border-color: #334155;
+        }
+        
+        /* 暗黑模式下主按钮样式 */
+        .dark .bg-primary-600 {
+            background-color: #2563eb;
+        }
+        
+        .dark .bg-primary-600:hover {
+            background-color: #1d4ed8;
+        }
+        
+        .dark .text-primary-600 {
+            color: #3b82f6;
+        }
+        
+        .dark .hover\:text-primary-600:hover {
+            color: #60a5fa;
+        }
+        
+        .dark .bg-primary-100 {
+            background-color: rgba(59, 130, 246, 0.2);
+        }
+        
+        /* 暗黑模式下标题下划线 */
+        .dark .bg-primary-500 {
+            background-color: #3b82f6;
+        }
+        
+        /* 暗黑模式下浏览作品按钮 */
+        .dark a.bg-white.text-primary-600 {
+            background-color: rgba(30, 41, 59, 0.8);
+            color: #60a5fa;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+        
+        .dark a.bg-white.text-primary-600:hover {
+            background-color: rgba(51, 65, 85, 0.9);
+            color: #93c5fd;
+        }
+        
+        /* 改进加载状态样式 */
+        .photos-loading {
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            background-color: white;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.5s ease;
+            margin-bottom: 2rem;
+        }
+        
+        .dark .photos-loading {
+            background-color: #1e293b;
+        }
+        
+        .photos-loading .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(14, 165, 233, 0.2);
+            border-radius: 50%;
+            border-top: 4px solid #0ea5e9;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        
+        /* 添加淡入淡出动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen loading">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-sm sticky top-0 z-30">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <a href="/" class="text-2xl font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-camera-retro mr-2 text-primary-600"></i>
+                    <span>摄影集</span>
+                </a>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-600 hover:text-primary-600 transition-colors" id="darkModeToggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 页面头部 -->
+    <header class="relative overflow-hidden bg-gradient-to-r from-primary-600 to-purple-600 text-white">
+        <div class="absolute inset-0 bg-black opacity-30"></div>
+        <div class="container mx-auto px-4 py-16 relative z-10">
+            <div class="max-w-3xl mx-auto text-center">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 animate-fade-in">个人摄影作品集</h1>
+                <p class="text-xl opacity-90 mb-8 animate-slide-up">记录美好瞬间，分享精彩视角</p>
+                <div class="flex justify-center">
+                    <a href="#gallery" class="bg-white text-primary-600 hover:bg-gray-100 font-medium px-6 py-3 rounded-lg shadow-md transition-all duration-300 flex items-center">
+                        <span>浏览作品</span>
+                        <i class="fas fa-arrow-down ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120">
+                <path fill="#f9fafb" fill-opacity="1" d="M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,120L1360,120C1280,120,1120,120,960,120C800,120,640,120,480,120C320,120,160,120,80,120L0,120Z"></path>
+            </svg>
+        </div>
+    </header>
+
+    <!-- 主要内容 -->
+    <main class="container mx-auto px-4 py-12" id="gallery">
+        {% if photos %}
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">我的作品集</h2>
+                <div class="h-1 w-20 bg-primary-500 rounded"></div>
+            </div>
+            
+            <!-- 搜索和过滤 -->
+            <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div class="relative flex-grow max-w-md">
+                        <input type="text" id="searchInput" placeholder="搜索照片..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <select id="sortSelect" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                            <option value="date-desc">最新优先</option>
+                            <option value="date-asc">最早优先</option>
+                        </select>
+                        <button id="filterBtn" class="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                            <i class="fas fa-filter text-gray-600"></i>
+                            <span>筛选</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 筛选面板 (默认隐藏) -->
+                <div id="filterPanel" class="mt-4 pt-4 border-t border-gray-200 hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <h3 class="font-medium text-gray-700 mb-2">日期范围</h3>
+                            <div class="flex gap-2">
+                                <input type="date" id="dateFrom" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                                <span class="self-center">至</span>
+                                <input type="date" id="dateTo" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-gray-700 mb-2">文件类型</h3>
+                            <div class="flex flex-wrap gap-2">
+                                <label class="inline-flex items-center">
+                                    <input type="checkbox" class="file-type-filter" value=".jpg,.jpeg" checked class="rounded text-primary-600 focus:ring-primary-500">
+                                    <span class="ml-2">JPG/JPEG</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="checkbox" class="file-type-filter" value=".png" checked class="rounded text-primary-600 focus:ring-primary-500">
+                                    <span class="ml-2">PNG</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="checkbox" class="file-type-filter" value=".gif" checked class="rounded text-primary-600 focus:ring-primary-500">
+                                    <span class="ml-2">GIF</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="flex justify-end items-end">
+                            <button id="applyFiltersBtn" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">
+                                应用筛选
+                            </button>
+                            <button id="resetFiltersBtn" class="ml-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors">
+                                重置
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 默认使用瀑布流布局 -->
+            <div id="photosLoading" class="photos-loading">
+                <div class="spinner"></div>
+                <p class="text-gray-600 mt-3">正在加载照片集...</p>
+                <p class="text-gray-500 text-sm mt-2">首次加载可能需要一点时间，请耐心等待</p>
+                
+                <!-- 缓存处理进度条 -->
+                <div id="cacheProgressContainer" class="mt-4 w-full max-w-md hidden">
+                    <p class="text-sm text-gray-600 mb-1">缓存处理进度：<span id="cacheProgressText">0%</span></p>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                        <div id="cacheProgressBar" class="bg-primary-600 h-2.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                    <p id="cacheProgressDetail" class="text-xs text-gray-500 mt-1">处理中...</p>
+                </div>
+            </div>
+            <div class="masonry-grid" id="photoGrid">
+                {% for photo in photos %}
+                    <div class="photo-card bg-white rounded-lg shadow-sm overflow-hidden" 
+                         data-filename="{{ photo.filename }}"
+                         data-width="{{ photo.width }}"
+                         data-height="{{ photo.height }}">
+                        <div class="photo-img-container" onclick="openModal('{{ photo.filename }}')">
+                            <img src="{{ photo.thumbnail }}" 
+                                 alt="{{ photo.display_name }}" 
+                                 loading="lazy"
+                                 onload="this.classList.add('loaded');">
+                            <div class="photo-overlay">
+                                <h3 class="text-white font-medium truncate">{{ photo.display_name }}</h3>
+                                <div class="flex flex-wrap gap-2 mt-1 mb-2">
+                                    <span class="text-xs text-white bg-black bg-opacity-30 px-2 py-1 rounded-full">{{ photo.date }}</span>
+                                    <span class="text-xs text-white bg-black bg-opacity-30 px-2 py-1 rounded-full">{{ photo.size }}</span>
+                                    <span class="text-xs text-white bg-black bg-opacity-30 px-2 py-1 rounded-full">{{ photo.dimensions }}</span>
+                                </div>
+                                <button class="mt-2 bg-white bg-opacity-20 hover:bg-opacity-30 text-white text-sm py-1 px-3 rounded-full backdrop-blur-sm transition-all" onclick="event.stopPropagation(); openModal('{{ photo.filename }}')">
+                                    <i class="fas fa-expand-alt mr-1"></i> 查看原图
+                                </button>
+                            </div>
+                        </div>
+                        <div class="photo-info">
+                            <h3 class="text-gray-800 font-medium truncate">{{ photo.display_name }}</h3>
+                            <p class="text-xs text-gray-500">{{ photo.date }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-16 bg-white rounded-lg shadow-sm">
+                <div class="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-primary-100 text-primary-600">
+                    <i class="fas fa-images text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-semibold text-gray-800 mb-2">暂无照片</h2>
+                <p class="text-gray-500 max-w-md mx-auto">请将您的照片放入photos文件夹中，系统将自动加载并展示</p>
+                <div class="mt-8">
+                    <a href="/" class="inline-flex items-center text-primary-600 hover:text-primary-700">
+                        <i class="fas fa-sync-alt mr-2"></i>
+                        <span>刷新页面</span>
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </main>
+
+    <!-- 回到顶部按钮 -->
+    <button id="scrollTopBtn" class="scroll-top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- 模态框 - 用于显示原图 -->
+    <div id="imageModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div class="flex items-center justify-center h-full">
+            <div id="imageLoader" class="loader"></div>
+            <img class="modal-content" id="modalImage">
+        </div>
+        <div class="modal-controls">
+            <button class="modal-control-btn" id="prevBtn">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="modal-control-btn" id="nextBtn">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="bg-gray-800 text-white py-10">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <div class="flex items-center">
+                        <i class="fas fa-camera-retro text-2xl mr-2 text-primary-400"></i>
+                        <span class="text-xl font-bold">摄影集</span>
+                    </div>
+                    <p class="mt-2 text-gray-400 text-sm">记录生活中的美好瞬间</p>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="fab fa-instagram text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="fab fa-twitter text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="fab fa-github text-xl"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400 text-sm">
+                <p>&copy; {{ current_year if current_year else '2023' }} 个人摄影作品集. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 当前显示的图片索引
+        let currentIndex = 0;
+        // 所有照片的文件名数组
+        const photoFilenames = Array.from(document.querySelectorAll('.photo-card')).map(card => card.dataset.filename);
+        
+        // 打开模态框显示原图
+        function openModal(filename) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            const loader = document.getElementById('imageLoader');
+            
+            // 显示加载动画
+            loader.style.display = 'block';
+            modalImg.style.display = 'none';
+            modalImg.classList.remove('show');
+            
+            // 移除可能存在的错误消息
+            const errorMsgs = modal.querySelectorAll('.error-message');
+            errorMsgs.forEach(msg => msg.remove());
+            
+            // 设置当前索引
+            currentIndex = photoFilenames.indexOf(filename);
+            
+            // 显示模态框
+            modal.style.display = "flex";
+            setTimeout(() => {
+                modal.classList.add('show');
+            }, 10);
+            
+            // 加载图片
+            modalImg.onload = function() {
+                loader.style.display = 'none';
+                modalImg.style.display = 'block';
+                setTimeout(() => {
+                    modalImg.classList.add('show');
+                }, 10);
+            };
+            
+            modalImg.onerror = function() {
+                console.error(`无法加载原图: ${filename}`);
+                loader.style.display = 'none';
+                // 显示一个错误消息
+                const errorMsg = document.createElement('div');
+                errorMsg.textContent = '图片加载失败';
+                errorMsg.style.color = 'white';
+                errorMsg.style.fontSize = '1.5rem';
+                errorMsg.className = 'error-message';
+                modal.querySelector('.flex.items-center').appendChild(errorMsg);
+            };
+            
+            // 加载原图
+            modalImg.src = "/photos/" + filename;
+            
+            // 禁止背景滚动
+            document.body.style.overflow = "hidden";
+        }
+        
+        // 关闭模态框
+        function closeModal() {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            
+            modalImg.classList.remove('show');
+            modal.classList.remove('show');
+            
+            setTimeout(() => {
+                modal.style.display = "none";
+                // 恢复背景滚动
+                document.body.style.overflow = "auto";
+            }, 300);
+        }
+        
+        // 显示上一张图片
+        function showPrevImage() {
+            currentIndex = (currentIndex - 1 + photoFilenames.length) % photoFilenames.length;
+            openModal(photoFilenames[currentIndex]);
+        }
+        
+        // 显示下一张图片
+        function showNextImage() {
+            currentIndex = (currentIndex + 1) % photoFilenames.length;
+            openModal(photoFilenames[currentIndex]);
+        }
+        
+        // 点击模态框背景也可以关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('imageModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        };
+        
+        // 键盘导航
+        document.addEventListener('keydown', function(event) {
+            if (document.getElementById('imageModal').style.display === 'flex') {
+                if (event.key === 'ArrowLeft') {
+                    showPrevImage();
+                } else if (event.key === 'ArrowRight') {
+                    showNextImage();
+                } else if (event.key === 'Escape') {
+                    closeModal();
+                }
+            }
+        });
+        
+        // 设置上一张/下一张按钮事件
+        document.getElementById('prevBtn').addEventListener('click', showPrevImage);
+        document.getElementById('nextBtn').addEventListener('click', showNextImage);
+        
+        // 回到顶部按钮
+        const scrollTopBtn = document.getElementById('scrollTopBtn');
+        
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                scrollTopBtn.classList.add('show');
+            } else {
+                scrollTopBtn.classList.remove('show');
+            }
+        });
+        
+        scrollTopBtn.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // 暗黑模式切换
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        let darkMode = localStorage.getItem('darkMode') === 'true';
+        
+        function updateDarkMode() {
+            if (darkMode) {
+                document.documentElement.classList.add('dark');
+                darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                
+                // 更新页面头部渐变色
+                const header = document.querySelector('header');
+                header.classList.remove('from-primary-600', 'to-purple-600');
+                header.classList.add('from-blue-900', 'to-indigo-900');
+                
+                // 更新波浪SVG颜色
+                const wavePath = document.querySelector('header svg path');
+                wavePath.setAttribute('fill', '#0f172a');
+            } else {
+                document.documentElement.classList.remove('dark');
+                darkModeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                
+                // 恢复页面头部渐变色
+                const header = document.querySelector('header');
+                header.classList.remove('from-blue-900', 'to-indigo-900');
+                header.classList.add('from-primary-600', 'to-purple-600');
+                
+                // 恢复波浪SVG颜色
+                const wavePath = document.querySelector('header svg path');
+                wavePath.setAttribute('fill', '#f9fafb');
+            }
+        }
+        
+        updateDarkMode();
+        
+        darkModeToggle.addEventListener('click', function() {
+            darkMode = !darkMode;
+            localStorage.setItem('darkMode', darkMode);
+            updateDarkMode();
+        });
+        
+        // 获取照片网格容器
+        const photoGrid = document.getElementById('photoGrid');
+        
+        // 创建瀑布流布局
+        function createMasonryLayout() {
+            // 先获取所有原始照片卡片的数据，然后再清空容器
+            const originalCards = Array.from(document.querySelectorAll('.photo-card'));
+            console.log(`找到 ${originalCards.length} 张原始照片卡片`);
+            
+            if (originalCards.length === 0) {
+                console.error('没有找到照片卡片，保留当前布局');
+                return;
+            }
+            
+            // 创建卡片克隆
+            const cardsData = originalCards.map(card => {
+                const clone = card.cloneNode(true);
+                // 确保克隆的卡片上有所有需要的数据和样式
+                clone.dataset.filename = card.dataset.filename;
+                clone.dataset.width = card.dataset.width;
+                clone.dataset.height = card.dataset.height;
+                clone.classList.add('masonry-item');
+                clone.style.opacity = '1';
+                clone.style.visibility = 'visible';
+                
+                // 设置图片容器的宽高比
+                const imgContainer = clone.querySelector('.photo-img-container');
+                const width = parseInt(card.dataset.width, 10);
+                const height = parseInt(card.dataset.height, 10);
+                
+                if (imgContainer && width && height) {
+                    // 计算宽高比
+                    const aspectRatio = width / height;
+                    
+                    // 对于宽图（比例大于或等于2:1的图片）特殊处理
+                    if (aspectRatio >= 2) {
+                        imgContainer.classList.add('wide-image');
+                        // 对于特别宽的图片，适当减小高度，避免太矮
+                        imgContainer.style.aspectRatio = `${width} / ${Math.max(height, width/2.5)}`;
+                    } else {
+                        // 常规图片使用原始宽高比
+                        imgContainer.style.aspectRatio = `${width} / ${height}`;
+                    }
+                    
+                    // 确保高度也会受到约束，避免原始尺寸溢出
+                    imgContainer.style.maxHeight = 'none';
+                    
+                    // 确保点击事件正确设置
+                    imgContainer.onclick = function() {
+                        openModal(clone.dataset.filename);
+                    };
+                    
+                    // 确保查看原图按钮事件正确
+                    const viewButton = imgContainer.querySelector('button');
+                    if (viewButton) {
+                        viewButton.onclick = function(event) {
+                            event.stopPropagation();
+                            openModal(clone.dataset.filename);
+                        };
+                    }
+                }
+                
+                return clone;
+            });
+            
+            // 现在可以安全地清空容器
+            photoGrid.innerHTML = '';
+            
+            // 临时设置显示样式来获取正确的宽度
+            const originalDisplay = photoGrid.style.display;
+            photoGrid.style.opacity = '0';
+            photoGrid.style.display = 'flex';
+            
+            // 计算有多少列可以放入容器（基于固定列宽）
+            const containerWidth = photoGrid.clientWidth;
+            const columnWidth = getColumnWidth(); // 获取当前视窗下的列宽
+            const gap = 16; // 列间距
+            
+            // 恢复原始显示样式
+            photoGrid.style.display = originalDisplay || 'flex';
+            
+            // 计算可以放多少列（取整，不要小数列）
+            let columnCount = Math.floor((containerWidth + gap) / (columnWidth + gap));
+            
+            // 小屏幕强制为1列
+            if (window.innerWidth <= 640) {
+                columnCount = 1;
+            }
+            
+            // 确保至少有1列
+            columnCount = Math.max(1, columnCount);
+            
+            console.log(`容器宽度: ${containerWidth}px, 列宽: ${columnWidth}px, 计算列数: ${columnCount}`);
+            
+            // 创建列
+            const columns = [];
+            for (let i = 0; i < columnCount; i++) {
+                const column = document.createElement('div');
+                column.classList.add('masonry-column');
+                column.setAttribute('data-column-index', i);
+                column.style.opacity = '1';
+                column.style.visibility = 'visible';
+                photoGrid.appendChild(column);
+                columns.push(column);
+            }
+            
+            // 改进的分配方法：基于高度分配卡片到最短的列
+            const columnHeights = new Array(columnCount).fill(0);
+            
+            cardsData.forEach((card, index) => {
+                // 找出当前高度最小的列
+                const minHeightIndex = columnHeights.indexOf(Math.min(...columnHeights));
+                columns[minHeightIndex].appendChild(card);
+                
+                // 更新列高度
+                const width = parseInt(card.dataset.width, 10) || 300;
+                const height = parseInt(card.dataset.height, 10) || 200;
+                const aspectRatio = width / height;
+                // 预估高度 = 卡片宽度 / 宽高比 + 信息栏高度(约60px)
+                const estimatedHeight = (columnWidth / aspectRatio) + 60;
+                
+                columnHeights[minHeightIndex] += estimatedHeight + gap;
+            });
+            
+            // 加载完成后，为图片添加loaded类
+            document.querySelectorAll('.photo-card img').forEach(img => {
+                if (img.complete) {
+                    img.classList.add('loaded');
+                } else {
+                    img.addEventListener('load', function() {
+                        img.classList.add('loaded');
+                    });
+                    
+                    img.addEventListener('error', function() {
+                        console.error(`图片加载失败: ${img.src}`);
+                        // 显示一个占位符或错误图标
+                        img.parentElement.classList.add('load-error');
+                    });
+                }
+            });
+            
+            console.log(`瀑布流布局创建完成，共 ${columnCount} 列，${cardsData.length} 张卡片`);
+        }
+        
+        // 根据当前窗口宽度获取列宽
+        function getColumnWidth() {
+            if (window.innerWidth <= 640) {
+                return Math.min(450, window.innerWidth - 32); // 小屏幕，减去左右padding
+            } else if (window.innerWidth < 768) {
+                return 300; // 默认列宽
+            } else if (window.innerWidth < 1280) {
+                return 280; // 中等屏幕
+            } else {
+                return 260; // 大屏幕
+            }
+        }
+        
+        // 页面加载完成后初始化布局
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOMContentLoaded 事件触发');
+            console.log(`已找到 ${photoFilenames.length} 张照片`);
+            
+            // 移除body的loading类，让页面平滑显示
+            setTimeout(() => {
+                document.body.classList.remove('loading');
+            }, 100);
+            
+            // 添加额外样式确保图片卡片可见
+            updateStyles();
+            
+            // 检查页面中的图片元素是否存在
+            const allImages = document.querySelectorAll('.photo-card img');
+            console.log(`页面中找到 ${allImages.length} 个图片元素`);
+            
+            // 确保所有图片都有loaded类
+            document.querySelectorAll('.photo-img-container img').forEach(img => {
+                if (img.complete) {
+                    img.classList.add('loaded');
+                } else {
+                    img.addEventListener('load', function() {
+                        img.classList.add('loaded');
+                    });
+                }
+            });
+            
+            // 立即显示页面内容，但瀑布流布局稍后初始化
+            document.body.classList.add('fade-in');
+            
+            // 初始化筛选功能（可以在DOM加载后就初始化）
+            setTimeout(function() {
+                initFilters();
+                // 预先加载一次所有照片卡片数据
+                allPhotoCards = Array.from(document.querySelectorAll('.photo-card'));
+                // 更新文件类型筛选状态
+                updateFileTypeFilters();
+            }, 300);
+            
+            // 开始检查缓存处理状态
+            checkCacheStatus();
+        });
+        
+        // 检查缓存处理状态
+        function checkCacheStatus() {
+            fetch('/api/cache/status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.processing) {
+                        // 显示进度条
+                        const progressContainer = document.getElementById('cacheProgressContainer');
+                        progressContainer.classList.remove('hidden');
+                        
+                        // 更新进度条
+                        const progressBar = document.getElementById('cacheProgressBar');
+                        const progressText = document.getElementById('cacheProgressText');
+                        const progressDetail = document.getElementById('cacheProgressDetail');
+                        
+                        const percent = data.progress.percent;
+                        progressBar.style.width = `${percent}%`;
+                        progressText.textContent = `${percent}%`;
+                        
+                        const processed = data.progress.processed;
+                        const total = data.progress.total;
+                        progressDetail.textContent = `处理中... ${processed}/${total} 张图片`;
+                        
+                        // 继续检查
+                        setTimeout(checkCacheStatus, 1000);
+                    } else {
+                        // 隐藏进度条，但如果有完成信息则显示
+                        const progressContainer = document.getElementById('cacheProgressContainer');
+                        
+                        if (data.progress.total > 0 && data.progress.processed > 0) {
+                            // 显示完成信息5秒
+                            const progressBar = document.getElementById('cacheProgressBar');
+                            const progressText = document.getElementById('cacheProgressText');
+                            const progressDetail = document.getElementById('cacheProgressDetail');
+                            
+                            progressContainer.classList.remove('hidden');
+                            progressBar.style.width = '100%';
+                            progressText.textContent = '100%';
+                            progressDetail.textContent = `完成! 已处理 ${data.progress.processed}/${data.progress.total} 张图片`;
+                            
+                            setTimeout(() => {
+                                progressContainer.classList.add('hidden');
+                            }, 5000);
+                        } else {
+                            progressContainer.classList.add('hidden');
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('检查缓存状态时出错:', error);
+                    // 出错时继续尝试
+                    setTimeout(checkCacheStatus, 5000);
+                });
+        }
+        
+        // 修改CSS样式，确保瀑布流网格可见
+        function updateStyles() {
+            // 创建一个新的style元素
+            const style = document.createElement('style');
+            style.textContent = `
+                .masonry-grid.loaded {
+                    display: flex !important;
+                    opacity: 1 !important;
+                    transform: translateY(0) !important;
+                }
+                
+                .masonry-column {
+                    opacity: 1 !important;
+                    visibility: visible !important;
+                }
+                
+                .photo-card {
+                    opacity: 1 !important;
+                    visibility: visible !important;
+                }
+            `;
+            document.head.appendChild(style);
+            console.log('已添加额外样式确保瀑布流和图片卡片可见');
+        }
+
+        // 在window.load事件中，确保所有资源加载完毕再初始化瀑布流
+        window.addEventListener('load', function() {
+            const photoGrid = document.getElementById('photoGrid');
+            const photosLoading = document.getElementById('photosLoading');
+            
+            console.log('Window load 事件触发，所有资源已加载完成');
+            
+            // 设置一个合理的延迟，确保窗口尺寸已经稳定
+            setTimeout(function() {
+                console.log('准备初始化瀑布流布局');
+                
+                // 先将photoGrid设置为可见但透明，以便正确计算宽度
+                photoGrid.style.removeProperty('display');
+                photoGrid.style.display = 'flex';
+                photoGrid.style.opacity = '0';
+                photoGrid.classList.add('masonry-grid'); // 确保添加了masonry-grid类
+                
+                // 强制浏览器重新计算布局
+                void photoGrid.offsetWidth;
+                
+                try {
+                    // 创建瀑布流布局
+                    createMasonryLayout();
+                    
+                    console.log('瀑布流布局初始化成功');
+                    
+                    // 确保布局可见
+                    photoGrid.style.opacity = '1';
+                } catch (error) {
+                    console.error('瀑布流布局初始化失败:', error);
+                    
+                    // 错误处理：如果布局创建失败，显示简单网格
+                    photoGrid.innerHTML = '';
+                    const originalCards = Array.from(document.querySelectorAll('.photo-card'));
+                    originalCards.forEach(card => {
+                        const clone = card.cloneNode(true);
+                        photoGrid.appendChild(clone);
+                    });
+                    
+                    photoGrid.style.display = 'grid';
+                    photoGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(250px, 1fr))';
+                    photoGrid.style.gap = '16px';
+                    photoGrid.style.opacity = '1';
+                }
+                
+                // 隐藏加载状态
+                photosLoading.style.opacity = '0';
+                setTimeout(() => {
+                    photosLoading.style.display = 'none';
+                    // 显示布局完成的照片网格 - 确保这个类被添加
+                    photoGrid.classList.add('loaded');
+                    
+                    // 额外检查 - 确保所有列都可见
+                    document.querySelectorAll('.masonry-column').forEach(column => {
+                        column.style.opacity = '1';
+                        column.style.visibility = 'visible';
+                    });
+                    
+                    // 确保所有照片卡片可见
+                    document.querySelectorAll('.photo-card').forEach(card => {
+                        card.style.opacity = '1';
+                        card.style.visibility = 'visible';
+                    });
+                    
+                    console.log('布局显示完成，已将loaded类添加到photoGrid');
+                }, 300);
+                
+            }, 800); // 增加延迟到800ms，确保有足够时间计算布局
+            
+            // 使用 Intersection Observer API 实现更高效的懒加载
+            if ('IntersectionObserver' in window) {
+                const imageObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            const src = img.getAttribute('data-src');
+                            if (src) {
+                                img.src = src;
+                                img.removeAttribute('data-src');
+                            }
+                            observer.unobserve(img);
+                        }
+                    });
+                });
+                
+                // 获取所有带有 data-src 属性的图片
+                document.querySelectorAll('img[data-src]').forEach(img => {
+                    imageObserver.observe(img);
+                });
+            }
+            
+            // 简单的布局检查
+            setTimeout(function() {
+                // 确保所有图片容器样式正确
+                document.querySelectorAll('.photo-img-container').forEach(container => {
+                    // 确保高度根据宽高比正确设置
+                    const card = container.closest('.photo-card');
+                    if (card) {
+                        const width = parseInt(card.dataset.width, 10);
+                        const height = parseInt(card.dataset.height, 10);
+                        
+                        if (width && height) {
+                            container.style.aspectRatio = `${width} / ${height}`;
+                        }
+                    }
+                    
+                    // 确保图片加载正确
+                    const img = container.querySelector('img');
+                    if (img && img.complete) {
+                        img.classList.add('loaded');
+                    }
+                });
+                
+                // 输出最终布局信息
+                const columns = document.querySelectorAll('.masonry-column');
+                const containerWidth = photoGrid.clientWidth;
+                console.log(`最终布局检查 - 容器宽度: ${containerWidth}px, 实际列数: ${columns.length}`);
+            }, 1000);
+        });
+
+        // 当窗口大小改变时，重新计算瀑布流布局
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+            // 使用防抖动函数避免频繁计算
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                console.log("窗口大小变化，重新创建瀑布流布局");
+                // 重新计算列宽和列数
+                const oldColumnCount = document.querySelectorAll('.masonry-column').length;
+                const containerWidth = photoGrid.clientWidth;
+                const columnWidth = getColumnWidth();
+                const newColumnCount = Math.floor((containerWidth + 16) / (columnWidth + 16));
+                
+                // 只有当列数变化时才重新布局，提高性能
+                if (oldColumnCount !== newColumnCount || window.innerWidth <= 640) {
+                    createMasonryLayout();
+                }
+            }, 300); // 增加延迟，提供更平滑的体验
+        });
+    </script>
+</body>
+</html> 
