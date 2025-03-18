@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal Photography Portfolio</title>
+    <title>Ha22y Photography</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -11,25 +11,23 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            200: '#bae6fd',
-                            300: '#7dd3fc',
-                            400: '#38bdf8',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            700: '#0369a1',
-                            800: '#075985',
-                            900: '#0c4a6e',
-                        },
+                        // 黑白灰主色调
+                        dark: '#232323',
+                        medium: '#4A4A4A',
+                        light: '#E7E7E7',
+                        accent: '#5A7CA6', // 降低饱和度的蓝色作为强调色
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
+                        title: ['Playfair Display', 'serif'], // 增加专业摄影标题字体
                     },
                     animation: {
-                        'fade-in': 'fadeIn 0.5s ease-in-out',
-                        'slide-up': 'slideUp 0.5s ease-out',
+                        'fade-in': 'fadeIn 0.8s ease-in-out',
+                        'slide-up': 'slideUp 0.8s ease-out',
+                        'slide-right': 'slideRight 0.8s ease-out',
+                        'slide-left': 'slideLeft 0.8s ease-out',
+                        'zoom-in': 'zoomIn 0.8s ease-out',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                     },
                     keyframes: {
                         fadeIn: {
@@ -37,8 +35,20 @@
                             '100%': { opacity: '1' },
                         },
                         slideUp: {
-                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '0%': { transform: 'translateY(30px)', opacity: '0' },
                             '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        slideRight: {
+                            '0%': { transform: 'translateX(-30px)', opacity: '0' },
+                            '100%': { transform: 'translateX(0)', opacity: '1' },
+                        },
+                        slideLeft: {
+                            '0%': { transform: 'translateX(30px)', opacity: '0' },
+                            '100%': { transform: 'translateX(0)', opacity: '1' },
+                        },
+                        zoomIn: {
+                            '0%': { transform: 'scale(0.95)', opacity: '0' },
+                            '100%': { transform: 'scale(1)', opacity: '1' },
                         },
                     },
                 },
@@ -48,25 +58,127 @@
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+        /* 鼠标跟随效果 */
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #E7E7E7;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s ease, height 0.2s ease, background-color 0.2s ease, transform 0.1s ease;
+            will-change: transform, width, height;
+        }
         
+        .cursor-outline {
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(231, 231, 231, 0.5);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s ease, height 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, transform 0.15s ease;
+            will-change: transform, width, height, border-color;
+        }
+        
+        /* 鼠标跟随效果（悬停状态） */
+        .cursor-hover {
+            width: 60px;
+            height: 60px;
+            border-color: rgba(90, 124, 166, 0.6);
+            background-color: rgba(90, 124, 166, 0.1);
+        }
+        
+        /* 鼠标跟随效果（点击状态） */
+        .cursor-clicking {
+            transform: translate(-50%, -50%) scale(0.8);
+        }
+        
+        .cursor-dot.cursor-clicking {
+            transform: translate(-50%, -50%) scale(0.5);
+        }
+        
+        /* 图片悬停效果样式增强 */
+        .photo-card {
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            position: relative;
+            overflow: hidden;
+            background-color: #232323;
+            border-radius: 0;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        
+        .photo-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .photo-card:after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        
+        .photo-card:hover:after {
+            opacity: 1;
+        }
+        
+        /* 页面滚动视差效果 */
+        .parallax-section {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .parallax-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 120%;
+            background-size: cover;
+            background-position: center;
+            transform: translateZ(0);
+            will-change: transform;
+        }
+        
+        /* 平滑滚动设置 */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* 基础样式重设 */
         body {
             font-family: 'Inter', sans-serif;
             opacity: 1;
-            transition: opacity 0.3s ease;
+            transition: all 0.5s ease;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            background-color: #232323;
+            color: #E7E7E7;
         }
         
         body.loading {
             opacity: 0.6;
         }
         
-        /* 在布局加载前隐藏照片网格 */
+        /* 设置照片网格样式 */
         #photoGrid {
             visibility: hidden;
             opacity: 0;
-            transition: opacity 0.5s ease;
+            transition: opacity 0.8s ease;
         }
         
         #photoGrid.loaded {
@@ -80,7 +192,7 @@
             flex-direction: column;
         }
         
-        /* Empty state container */
+        /* 空状态容器 */
         .empty-state-container {
             flex: 1;
             display: flex;
@@ -92,20 +204,28 @@
         
         /* Dark mode styles */
         .dark body {
-            background-color: #0f172a; /* Darker blue background */
-            color: #e2e8f0;
+            background-color: #121212; 
+            color: #E7E7E7;
         }
         
-        .dark .bg-white {
-            background-color: #1e293b; /* Card background color */
+        .dark .bg-dark {
+            background-color: #121212;
         }
         
-        .dark .bg-gray-50 {
-            background-color: #0f172a; /* Main background color */
+        .dark .bg-medium {
+            background-color: #232323;
         }
         
-        .dark .bg-gray-100 {
-            background-color: #1e293b; /* Lightly emphasized background */
+        .dark .bg-light {
+            background-color: #333333;
+        }
+        
+        .dark .text-dark {
+            color: #FFFFFF;
+        }
+        
+        .dark .border-light {
+            border-color: #333333;
         }
         
         .dark .text-gray-800 {
@@ -251,9 +371,9 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 60%);
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.2) 40%, rgba(0, 0, 0, 0) 60%);
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
@@ -269,9 +389,9 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: rgba(0, 0, 0, 0.95);
+            background-color: rgba(0, 0, 0, 0.98);
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
         
         .modal.show {
@@ -282,34 +402,42 @@
             margin: auto;
             display: block;
             max-width: 90%;
-            max-height: 90%;
+            max-height: 85%;
             opacity: 0;
             transform: scale(0.95);
-            transition: all 0.3s ease;
-            object-fit: contain; /* Ensure image displays at original aspect ratio */
+            transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+            object-fit: contain;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.95);
         }
         
         .modal-content.show {
             opacity: 1;
-            transform: scale(1);
+            transform: translate(-50%, -50%) scale(1);
         }
         
         .close {
             position: absolute;
             top: 20px;
             right: 30px;
-            color: #f1f1f1;
+            color: #E7E7E7;
             font-size: 35px;
             font-weight: bold;
-            transition: 0.3s;
+            transition: all 0.3s ease;
             cursor: pointer;
             z-index: 60;
+            opacity: 0.8;
+            mix-blend-mode: difference;
         }
         
         .close:hover,
         .close:focus {
-            color: #bbb;
-            text-decoration: none;
+            color: #FFFFFF;
+            transform: rotate(90deg);
+            opacity: 1;
         }
         
         .modal-controls {
@@ -320,12 +448,18 @@
             display: flex;
             justify-content: center;
             gap: 20px;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-controls:hover {
+            opacity: 1;
         }
         
         .modal-control-btn {
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(255, 255, 255, 0.1);
             color: white;
-            border: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 50%;
             width: 50px;
             height: 50px;
@@ -333,17 +467,18 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
         }
         
         .modal-control-btn:hover {
-            background-color: rgba(255, 255, 255, 0.3);
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
         }
         
         .masonry-grid {
             display: flex;
             flex-wrap: wrap;
-            gap: 16px;
+            gap: 20px;
             width: 100%;
             justify-content: center;
             opacity: 1;
@@ -358,30 +493,27 @@
         }
         
         .masonry-column {
-            flex: 0 0 auto; /* Changed to fixed width, no stretching */
-            width: 300px; /* Fixed column width */
+            flex: 0 0 auto;
+            width: 300px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            margin-bottom: 16px;
+            gap: 20px;
+            margin-bottom: 20px;
         }
         
         @media (min-width: 768px) {
-            /* On medium screens, adjust column width slightly */
             .masonry-column {
                 width: 280px;
             }
         }
         
         @media (min-width: 1280px) {
-            /* On large screens, can be slightly narrower, to fit more columns */
             .masonry-column {
                 width: 260px;
             }
         }
         
         @media (max-width: 640px) {
-            /* On small screens, maintain responsiveness, fill container */
             .masonry-column {
                 flex: 1 0 100%;
                 max-width: 450px;
@@ -393,7 +525,6 @@
             break-inside: avoid;
             display: block;
             width: 100%;
-            border-radius: 0.5rem;
             overflow: hidden;
         }
         
@@ -402,37 +533,55 @@
             width: 100%;
             position: relative;
             overflow: hidden;
-            background-color: #f5f5f5;
-            min-height: 150px; /* Ensure container has minimum height */
-            cursor: pointer; /* Add pointer style to indicate clickable */
+            background-color: #181818;
+            min-height: 150px;
+            cursor: pointer;
+        }
+        
+        .photo-img-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 100%);
+            pointer-events: none;
+            z-index: 2;
         }
         
         .photo-img-container img {
             width: 100%;
             height: auto;
             display: block;
-            object-fit: contain; /* Default use contain to ensure image displays fully */
-            transition: opacity 0.3s ease;
+            object-fit: contain;
+            transition: all 0.7s cubic-bezier(0.165, 0.84, 0.44, 1);
             opacity: 0;
+            filter: grayscale(10%);
         }
         
         /* Special handling for wide images, to avoid bottom blank */
         .photo-img-container.wide-image {
-            background-color: #000; /* Change wide image bottom color to black */
+            background-color: #000;
         }
         
         .photo-img-container.wide-image img {
-            object-fit: cover; /* Wide image use cover to fill container */
-            height: 100%; /* Ensure to fill entire container height */
+            object-fit: cover;
+            height: 100%;
         }
         
         .photo-img-container img.loaded {
             opacity: 1;
         }
         
+        .photo-img-container:hover img {
+            transform: scale(1.05);
+            filter: grayscale(0%);
+        }
+        
         /* Load error styles */
         .photo-img-container.load-error {
-            background-color: #f8d7da;
+            background-color: #331c1d;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -444,13 +593,14 @@
             font-family: "Font Awesome 5 Free";
             font-weight: 900;
             font-size: 2rem;
-            color: #842029;
+            color: #a23d42;
         }
         
         /* Add image info styles */
         .photo-info {
             padding: 12px;
-            background-color: white;
+            background-color: #232323;
+            border-top: 1px solid rgba(255,255,255,0.05);
         }
         
         .scroll-top {
@@ -467,18 +617,119 @@
             justify-content: center;
             cursor: pointer;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
             z-index: 40;
+            border: 1px solid rgba(255,255,255,0.1);
         }
         
         .scroll-top.show {
-            opacity: 1;
+            opacity: 0.8;
         }
         
-        .loader {
-            border: 3px solid rgba(255, 255, 255, 0.3);
+        .scroll-top:hover {
+            opacity: 1;
+            transform: translateY(-5px);
+        }
+        
+        /* 隐藏标签和筛选系统 */
+        .tag-system {
+            margin-bottom: 2rem;
+        }
+        
+        .tag-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            background-color: rgba(255,255,255,0.08);
+            color: #E7E7E7;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .tag-badge:hover, .tag-badge.active {
+            background-color: #5A7CA6;
+            color: white;
+        }
+        
+        /* 浏览更多按钮特效 */
+        .browse-more-btn {
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+        
+        .browse-more-btn::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0;
+            background: rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+            z-index: -1;
+        }
+        
+        .browse-more-btn:hover::before {
+            height: 100%;
+        }
+        
+        .browse-more-btn:hover {
+            transform: translateY(-3px);
+        }
+        
+        /* 图片信息表 */
+        .image-exif-table {
+            font-size: 0.8rem;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        
+        .image-exif-table th {
+            text-align: left;
+            font-weight: normal;
+            color: #999;
+            padding: 0.25rem 0;
+        }
+        
+        .image-exif-table td {
+            text-align: right;
+            padding: 0.25rem 0;
+        }
+        
+        /* 图片导航指示器 */
+        .image-navigation {
+            position: absolute;
+            bottom: 5%;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .nav-dot {
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
-            border-top: 3px solid white;
+            background-color: rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-dot.active {
+            background-color: white;
+            transform: scale(1.2);
+        }
+        
+        /* 加载动画优化 */
+        .loader {
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top: 2px solid white;
             width: 30px;
             height: 30px;
             animation: spin 1s linear infinite;
@@ -490,115 +741,51 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* Ensure image container is centered in modal */
-        .modal .flex.items-center.justify-center {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        /* 平滑淡入淡出效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         
-        /* Dark mode modal styles */
-        .dark .modal {
-            background-color: rgba(0, 0, 0, 0.95);
+        .fade-in {
+            animation: fadeIn 0.8s ease-in-out;
         }
         
-        .dark .modal-content {
-            filter: brightness(0.9);
+        /* 图片悬停光效 */
+        .photo-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0) 40%,
+                rgba(255, 255, 255, 0.1) 50%,
+                rgba(255, 255, 255, 0) 60%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(45deg);
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.6s ease;
+            z-index: 3;
+            pointer-events: none;
         }
         
-        .dark .modal-control-btn {
-            background-color: rgba(30, 41, 59, 0.7);
+        .photo-card:hover::before {
+            opacity: 1;
+            transform: rotate(45deg) translate(0, 0);
+            animation: shimmer 2s forwards;
         }
         
-        .dark .modal-control-btn:hover {
-            background-color: rgba(51, 65, 85, 0.8);
+        @keyframes shimmer {
+            from { transform: rotate(45deg) translate(-150%, -150%); }
+            to { transform: rotate(45deg) translate(150%, 150%); }
         }
         
-        /* Dark mode filter panel styles */
-        .dark #filterPanel {
-            border-color: #334155;
-        }
-        
-        .dark .file-type-filter:checked {
-            background-color: #3b82f6;
-            border-color: #3b82f6;
-        }
-        
-        /* Dark mode scroll to top button */
-        .dark .scroll-top {
-            background-color: rgba(30, 41, 59, 0.8);
-        }
-        
-        .dark .scroll-top:hover {
-            background-color: rgba(51, 65, 85, 0.9);
-        }
-        
-        /* Dark mode load error styles */
-        .dark .photo-img-container.load-error {
-            background-color: #4a1e1c;
-        }
-        
-        .dark .photo-img-container.load-error::before {
-            color: #ef4444;
-        }
-        
-        /* Dark mode navigation bar styles */
-        .dark nav.bg-white {
-            background-color: #1e293b;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-        }
-        
-        /* Dark mode footer styles */
-        .dark footer.bg-gray-800 {
-            background-color: #0f172a;
-            border-top: 1px solid #334155;
-        }
-        
-        .dark footer .border-gray-700 {
-            border-color: #334155;
-        }
-        
-        /* Dark mode main button styles */
-        .dark .bg-primary-600 {
-            background-color: #2563eb;
-        }
-        
-        .dark .bg-primary-600:hover {
-            background-color: #1d4ed8;
-        }
-        
-        .dark .text-primary-600 {
-            color: #3b82f6;
-        }
-        
-        .dark .hover\:text-primary-600:hover {
-            color: #60a5fa;
-        }
-        
-        .dark .bg-primary-100 {
-            background-color: rgba(59, 130, 246, 0.2);
-        }
-        
-        /* Dark mode title underline */
-        .dark .bg-primary-500 {
-            background-color: #3b82f6;
-        }
-        
-        /* Dark mode browse gallery button */
-        .dark a.bg-white.text-primary-600 {
-            background-color: rgba(30, 41, 59, 0.8);
-            color: #60a5fa;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-        }
-        
-        .dark a.bg-white.text-primary-600:hover {
-            background-color: rgba(51, 65, 85, 0.9);
-            color: #93c5fd;
-        }
-        
-        /* Improved load status styles */
+        /* 重设页面加载状态 */
         .photos-loading {
             min-height: 300px;
             display: flex;
@@ -606,50 +793,157 @@
             align-items: center;
             justify-content: center;
             width: 100%;
-            background-color: white;
-            border-radius: 0.5rem;
+            background-color: #232323;
             padding: 2rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
             transition: all 0.5s ease;
             margin-bottom: 2rem;
-        }
-        
-        .dark .photos-loading {
-            background-color: #1e293b;
         }
         
         .photos-loading .spinner {
             width: 40px;
             height: 40px;
-            border: 4px solid rgba(14, 165, 233, 0.2);
+            border: 3px solid rgba(90, 124, 166, 0.2);
             border-radius: 50%;
-            border-top: 4px solid #0ea5e9;
+            border-top: 3px solid #5A7CA6;
             animation: spin 1s linear infinite;
             margin-bottom: 1rem;
         }
         
-        /* Add fade in/out animation */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        /* 页面底部信息和链接样式 */
+        .footer-link {
+            position: relative;
+            display: inline-block;
+            overflow: hidden;
+            color: #999;
+            transition: color 0.3s ease;
         }
         
-        .fade-in {
-            animation: fadeIn 0.5s ease-in-out;
+        .footer-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background-color: #5A7CA6;
+            transform: translateX(-101%);
+            transition: transform 0.4s ease;
+        }
+        
+        .footer-link:hover {
+            color: #E7E7E7;
+        }
+        
+        .footer-link:hover::after {
+            transform: translateX(0);
+        }
+        
+        /* 头部通知横幅 */
+        .notification-banner {
+            background-color: rgba(90, 124, 166, 0.1);
+            border-left: 3px solid #5A7CA6;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-radius: 0 0.25rem 0.25rem 0;
+            font-size: 0.9rem;
+        }
+        
+        .notification-banner i {
+            color: #5A7CA6;
+        }
+        
+        /* 精简化导航栏 */
+        nav.minimal-nav {
+            background: transparent;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.4s ease;
+        }
+        
+        nav.minimal-nav.scrolled {
+            background-color: rgba(35, 35, 35, 0.9);
+        }
+        
+        /* 简约风格的照片卡片 */
+        .photo-card {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            background-color: transparent;
+            box-shadow: none;
+            margin-bottom: 20px;
+        }
+        
+        .photo-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .photo-img-container {
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            background-color: #181818;
+            min-height: 150px;
+            cursor: pointer;
+        }
+        
+        .photo-img-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: contain;
+            transition: all 0.7s cubic-bezier(0.165, 0.84, 0.44, 1);
+            opacity: 0;
+            filter: none;
+        }
+        
+        .photo-img-container img.loaded {
+            opacity: 1;
+        }
+        
+        .photo-img-container:hover img {
+            transform: scale(1.05);
+        }
+        
+        .photo-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 60%);
+            opacity: 0;
+            transition: opacity 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 1.5rem;
+        }
+        
+        .photo-card:hover .photo-overlay {
+            opacity: 1;
         }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen loading">
-    <!-- Navigation Bar -->
-    <nav class="bg-white shadow-sm sticky top-0 z-30">
-        <div class="container mx-auto px-4 py-3">
+<body class="bg-dark min-h-screen loading">
+    <!-- 鼠标跟随指示器 -->
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+
+    <!-- 现代极简导航栏 -->
+    <nav class="minimal-nav sticky top-0 z-30">
+        <div class="container mx-auto px-6 py-4">
             <div class="flex justify-between items-center">
-                <a href="/" class="text-2xl font-bold text-gray-800 flex items-center">
-                    <i class="fas fa-camera-retro mr-2 text-primary-600"></i>
-                    <span>Photo Gallery</span>
+                <a href="/" class="text-2xl font-title text-light flex items-center space-x-3">
+                    <span>Ha22y</span>
                 </a>
-                <div class="flex items-center space-x-4">
-                    <button class="text-gray-600 hover:text-primary-600 transition-colors" id="darkModeToggle">
+                <div class="flex items-center space-x-6">
+                    <button class="text-light hover:text-white transition-colors" id="darkModeToggle">
                         <i class="fas fa-moon"></i>
                     </button>
                 </div>
@@ -657,125 +951,83 @@
         </div>
     </nav>
 
-    <!-- Page Header -->
-    <header class="relative overflow-hidden bg-gradient-to-r from-primary-600 to-purple-600 text-white">
-        <div class="absolute inset-0 bg-black opacity-30"></div>
-        <div class="container mx-auto px-4 py-16 relative z-10">
-            <div class="max-w-3xl mx-auto text-center">
-                <h1 class="text-4xl md:text-5xl font-bold mb-4 animate-fade-in">Personal Photography Portfolio</h1>
-                <p class="text-xl opacity-90 mb-8 animate-slide-up">Capturing beautiful moments, sharing unique perspectives</p>
-                <div class="flex justify-center">
-                    <a href="javascript:void(0)" id="browseGalleryBtn" class="bg-white text-primary-600 hover:bg-gray-100 font-medium px-6 py-3 rounded-lg shadow-md transition-all duration-300 flex items-center">
-                        <span>Browse Gallery</span>
-                        <i class="fas fa-arrow-down ml-2"></i>
-                    </a>
-                </div>
+    <!-- 现代摄影页面头部 -->
+    <header class="relative overflow-hidden bg-dark text-white">
+        <div class="container mx-auto px-6 py-16 md:py-24 relative z-10">
+            <div class="max-w-3xl">
+                <h1 class="text-3xl md:text-5xl font-title font-medium mb-6 animate-fade-in">Ha22y Photography</h1>
+                <p class="text-lg opacity-90 mb-4 max-w-xl animate-slide-up">Capturing the essence of moments through a minimalist lens</p>
             </div>
-        </div>
-        <div class="absolute bottom-0 left-0 right-0">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120">
-                <path fill="#f9fafb" fill-opacity="1" d="M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,120L1360,120C1280,120,1120,120,960,120C800,120,640,120,480,120C320,120,160,120,80,120L0,120Z"></path>
-            </svg>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="container mx-auto px-4 py-12" id="gallery">
+    <!-- 主内容区 -->
+    <main class="container mx-auto px-6 py-12" id="gallery">
         {% if photos %}
+            <!-- 引导文本 -->
             <div class="mb-8">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">My Portfolio</h2>
-                <div class="h-1 w-20 bg-primary-500 rounded"></div>
+                <h2 class="text-3xl font-title text-light mb-3">Photography Portfolio</h2>
+                <div class="h-px w-20 bg-accent mb-4"></div>
+                <p class="text-medium/80 max-w-2xl">Explore my world of photography, each frame containing a unique story and emotion</p>
             </div>
             
-            <!-- Search and Filter -->
-            <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
+            <!-- 标签系统 -->
+            <div class="tag-system hidden">
+                <span class="tag-badge active">All</span>
+                <span class="tag-badge">Landscape</span>
+                <span class="tag-badge">Portrait</span>
+                <span class="tag-badge">Street</span>
+                <span class="tag-badge">Architecture</span>
+                <span class="tag-badge">Nature</span>
+                <span class="tag-badge">Black & White</span>
+            </div>
+            
+            <!-- 搜索和过滤 -->
+            <div class="bg-medium p-4 mb-8">
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div class="relative flex-grow max-w-md">
-                        <input type="text" id="searchInput" placeholder="Search photos..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                    <div class="relative flex-grow">
+                        <input type="text" id="searchInput" placeholder="Search..." class="w-full pl-10 pr-4 py-2 border-0 border-b border-light/20 bg-transparent text-light focus:outline-none focus:border-accent">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-search text-gray-400"></i>
+                            <i class="fas fa-search text-light/50"></i>
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-2">
-                        <select id="sortSelect" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
-                            <option value="date-desc">Newest First</option>
-                            <option value="date-asc">Oldest First</option>
+                        <select id="sortSelect" class="px-4 py-2 border-0 border-b border-light/20 bg-transparent text-light focus:outline-none">
+                            <option value="date-desc">拍摄日期（最新优先）</option>
+                            <option value="date-asc">拍摄日期（最早优先）</option>
                         </select>
-                        <button id="filterBtn" class="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
-                            <i class="fas fa-filter text-gray-600"></i>
-                            <span>Filter</span>
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Filter Panel (Hidden by Default) -->
-                <div id="filterPanel" class="mt-4 pt-4 border-t border-gray-200 hidden">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <h3 class="font-medium text-gray-700 mb-2">Date Range</h3>
-                            <div class="flex gap-2">
-                                <input type="date" id="dateFrom" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
-                                <span class="self-center">to</span>
-                                <input type="date" id="dateTo" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
-                            </div>
-                        </div>
-                        <div>
-                            <h3 class="font-medium text-gray-700 mb-2">File Type</h3>
-                            <div class="flex flex-wrap gap-2">
-                                <label class="inline-flex items-center">
-                                    <input type="checkbox" class="file-type-filter rounded text-primary-600 focus:ring-primary-500" value=".jpg,.jpeg" checked>
-                                    <span class="ml-2">JPG/JPEG</span>
-                                </label>
-                                <label class="inline-flex items-center">
-                                    <input type="checkbox" class="file-type-filter rounded text-primary-600 focus:ring-primary-500" value=".png" checked>
-                                    <span class="ml-2">PNG</span>
-                                </label>
-                                <label class="inline-flex items-center">
-                                    <input type="checkbox" class="file-type-filter rounded text-primary-600 focus:ring-primary-500" value=".gif" checked>
-                                    <span class="ml-2">GIF</span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="flex justify-end items-end">
-                            <button id="applyFiltersBtn" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">
-                                Apply Filters
-                            </button>
-                            <button id="resetFiltersBtn" class="ml-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors">
-                                Reset
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Default Masonry Layout -->
+            <!-- 瀑布流布局 -->
             <div class="masonry-grid" id="photoGrid" style="opacity: 0;">
-                <!-- 模板渲染时不直接显示照片，而是使用JavaScript动态创建 -->
                 <!-- 原始照片数据保存在隐藏容器中 -->
                 <div id="photoData" class="hidden">
-                    {% for photo in photos %}
-                        <div class="photo-card bg-white rounded-lg shadow-sm overflow-hidden" 
-                             data-filename="{{ photo.filename }}"
-                             data-width="{{ photo.width }}"
-                             data-height="{{ photo.height }}"
-                             data-thumbnail="{{ photo.thumbnail }}"
-                             data-displayname="{{ photo.display_name }}" 
-                             data-date="{{ photo.date }}"
-                             data-size="{{ photo.size }}"
-                             data-dimensions="{{ photo.dimensions }}">
-                        </div>
-                    {% endfor %}
+                {% for photo in photos %}
+                    <div class="photo-card" 
+                         data-filename="{{ photo.filename }}"
+                         data-width="{{ photo.width }}"
+                         data-height="{{ photo.height }}"
+                         data-thumbnail="{{ photo.thumbnail }}"
+                         data-displayname="{{ photo.display_name }}" 
+                         data-date="{{ photo.date }}"
+                         data-size="{{ photo.size }}"
+                         data-dimensions="{{ photo.dimensions }}">
+                    </div>
+                {% endfor %}
                 </div>
             </div>
         {% else %}
+            <!-- 空状态显示 -->
             <div class="empty-state-container">
                 <div class="flex flex-col items-center justify-center text-center p-8">
-                    <div class="text-primary-300 mb-4">
+                    <div class="text-accent mb-6">
                         <i class="fas fa-camera-retro text-6xl"></i>
                     </div>
-                    <h2 class="text-2xl font-bold text-gray-800 mb-4">No Photos Yet</h2>
-                    <p class="text-gray-600 mb-6">Please place your photos in the photos folder and they will be automatically loaded and displayed</p>
-                    <button id="refreshBtn" class="bg-primary-600 hover:bg-primary-700 text-white font-medium px-6 py-3 rounded-lg shadow-md transition-all duration-300 flex items-center">
+                    <h2 class="text-2xl font-title text-light mb-4">No Photos Yet</h2>
+                    <p class="text-medium/80 mb-8">Please place your photos in the photos folder for automatic loading and display</p>
+                    <button id="refreshBtn" class="bg-accent hover:bg-accent/80 text-white font-medium px-6 py-3 flex items-center transition-all duration-300">
                         <i class="fas fa-sync-alt mr-2"></i>
                         <span>Refresh Page</span>
                     </button>
@@ -784,18 +1036,24 @@
         {% endif %}
     </main>
 
-    <!-- Back to Top Button -->
+    <!-- 回到顶部按钮 -->
     <button id="scrollTopBtn" class="scroll-top">
         <i class="fas fa-arrow-up"></i>
     </button>
 
-    <!-- Modal - For Displaying Full-Size Images -->
+    <!-- 图片查看模态框 -->
     <div id="imageModal" class="modal">
         <span class="close" onclick="closeModal()">&times;</span>
-        <div class="flex items-center justify-center h-full">
+        <div class="flex items-center justify-center h-full w-full">
             <div id="imageLoader" class="loader"></div>
             <img class="modal-content" id="modalImage">
         </div>
+        
+        <!-- 照片详情信息 -->
+        <div class="photo-meta">
+            <p class="text-sm opacity-70 mb-2" id="modalPhotoDate">Date Taken</p>
+        </div>
+        
         <div class="modal-controls">
             <button class="modal-control-btn" id="prevBtn">
                 <i class="fas fa-chevron-left"></i>
@@ -806,376 +1064,317 @@
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-10">
-        <div class="container mx-auto px-4">
+    <!-- 页脚 -->
+    <footer class="bg-dark text-light py-8 border-t border-light/10">
+        <div class="container mx-auto px-6">
             <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="mb-6 md:mb-0">
-                    <div class="flex items-center">
-                        <i class="fas fa-camera-retro text-2xl mr-2 text-primary-400"></i>
-                        <span class="text-xl font-bold">Photo Gallery</span>
+                <div class="mb-4 md:mb-0">
+                    <div class="text-xl font-title mb-2">Ha22y</div>
+                    <div class="text-sm text-medium/70">
+                        <div class="flex items-center mb-1">
+                            <i class="fas fa-envelope mr-2 text-accent"></i>
+                            <a href="mailto:ha22y.xing@gmail.com" class="hover:text-accent transition-colors">ha22y.xing@gmail.com</a>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-camera mr-2 text-accent"></i>
+                            <span class="text-medium/60">Hasselblad X2D 100C · Nikon Z6II</span>
+                        </div>
                     </div>
-                    <p class="mt-2 text-gray-400 text-sm">Capturing life's beautiful moments</p>
                 </div>
-                <div class="flex space-x-6">
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                        <i class="fab fa-instagram text-xl"></i>
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                        <i class="fab fa-twitter text-xl"></i>
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                        <i class="fab fa-github text-xl"></i>
-                    </a>
+                <div class="flex flex-col items-end">
+                    <div class="flex gap-4 mb-2">
+                        <a href="https://instagram.com" target="_blank" class="text-medium/50 hover:text-accent transition-colors">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="https://twitter.com" target="_blank" class="text-medium/50 hover:text-accent transition-colors">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                    </div>
+                    <p class="text-medium/50 text-sm">&copy; {{ current_year if current_year else '2023' }} Ha22y Photography. All rights reserved.</p>
                 </div>
-            </div>
-            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400 text-sm">
-                <p>&copy; {{ current_year if current_year else '2023' }} Personal Photography Portfolio. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
     <script>
-        // Current image index
+        // 当前图片索引
         let currentIndex = 0;
-        // Array of all photo filenames
+        // 照片文件名数组
         const photoFilenames = Array.from(document.querySelectorAll('.photo-card')).map(card => card.dataset.filename);
+        // 存储所有照片卡片
+        let allPhotoCards = [];
         
-        // Add click event for refresh button
+        // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', function() {
-            const refreshBtn = document.getElementById('refreshBtn');
-            if (refreshBtn) {
-                refreshBtn.addEventListener('click', function() {
-                    window.location.reload();
-                });
-            }
+            // 初始化鼠标跟随效果
+            initMouseFollower();
             
-            // 添加Browse Gallery按钮的平滑滚动效果
-            const browseGalleryBtn = document.getElementById('browseGalleryBtn');
-            if (browseGalleryBtn) {
-                browseGalleryBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const gallerySection = document.getElementById('gallery');
-                    if (gallerySection) {
-                        // 使用变速滚动效果
-                        smoothScrollTo(gallerySection.offsetTop, 1000, 'easeInOutQuad');
-                    }
-                });
-            }
-        });
-        
-        // 平滑滚动函数
-        function smoothScrollTo(targetY, duration, easingFunction) {
-            const startY = window.scrollY;
-            const distance = targetY - startY;
-            let startTime = null;
+            // 初始化简化版滚动效果
+            initScrollEffects();
             
-            // 缓动函数集合
-            const easings = {
-                // 先慢后快再慢
-                easeInOutQuad: t => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t,
-                // 先快后慢
-                easeOutQuad: t => t * (2 - t),
-                // 先慢后快
-                easeInQuad: t => t * t
-            };
-            
-            // 选择缓动函数
-            const ease = easings[easingFunction] || easings.easeInOutQuad;
-            
-            function animate(currentTime) {
-                if (startTime === null) startTime = currentTime;
-                
-                const timeElapsed = currentTime - startTime;
-                const progress = Math.min(timeElapsed / duration, 1);
-                const easeProgress = ease(progress);
-                
-                window.scrollTo(0, startY + distance * easeProgress);
-                
-                if (timeElapsed < duration) {
-                    requestAnimationFrame(animate);
-                }
-            }
-            
-            requestAnimationFrame(animate);
-        }
-        
-        // Open modal to display full-size image
-        function openModal(filename) {
-            const modal = document.getElementById('imageModal');
-            const modalImg = document.getElementById('modalImage');
-            const loader = document.getElementById('imageLoader');
-            
-            // Show loading animation
-            loader.style.display = 'block';
-            modalImg.style.display = 'none';
-            modalImg.classList.remove('show');
-            
-            // Remove any existing error messages
-            const errorMsgs = modal.querySelectorAll('.error-message');
-            errorMsgs.forEach(msg => msg.remove());
-            
-            // Set current index
-            currentIndex = photoFilenames.indexOf(filename);
-            
-            // Show modal
-            modal.style.display = "flex";
-            setTimeout(() => {
-                modal.classList.add('show');
-            }, 10);
-            
-            // Load image
-            modalImg.onload = function() {
-                loader.style.display = 'none';
-                modalImg.style.display = 'block';
-                setTimeout(() => {
-                    modalImg.classList.add('show');
-                }, 10);
-            };
-            
-            modalImg.onerror = function() {
-                console.error(`Failed to load image: ${filename}`);
-                loader.style.display = 'none';
-                // Show error message
-                const errorMsg = document.createElement('div');
-                errorMsg.textContent = 'Image failed to load';
-                errorMsg.style.color = 'white';
-                errorMsg.style.fontSize = '1.5rem';
-                errorMsg.className = 'error-message';
-                modal.querySelector('.flex.items-center').appendChild(errorMsg);
-            };
-            
-            // Load full-size image
-            modalImg.src = "/photos/" + filename;
-            
-            // Disable background scrolling
-            document.body.style.overflow = "hidden";
-        }
-        
-        // Close modal
-        function closeModal() {
-            const modal = document.getElementById('imageModal');
-            const modalImg = document.getElementById('modalImage');
-            
-            modalImg.classList.remove('show');
-            modal.classList.remove('show');
-            
-            setTimeout(() => {
-                modal.style.display = "none";
-                // Restore background scrolling
-                document.body.style.overflow = "auto";
-            }, 300);
-        }
-        
-        // Show previous image
-        function showPrevImage() {
-            currentIndex = (currentIndex - 1 + photoFilenames.length) % photoFilenames.length;
-            openModal(photoFilenames[currentIndex]);
-        }
-        
-        // Show next image
-        function showNextImage() {
-            currentIndex = (currentIndex + 1) % photoFilenames.length;
-            openModal(photoFilenames[currentIndex]);
-        }
-        
-        // Click on modal background to close
-        window.onclick = function(event) {
-            const modal = document.getElementById('imageModal');
-            if (event.target == modal) {
-                closeModal();
-            }
-        };
-        
-        // Keyboard navigation
-        document.addEventListener('keydown', function(event) {
-            if (document.getElementById('imageModal').style.display === 'flex') {
-                if (event.key === 'ArrowLeft') {
-                    showPrevImage();
-                } else if (event.key === 'ArrowRight') {
-                    showNextImage();
-                } else if (event.key === 'Escape') {
-                    closeModal();
-                }
-            }
-        });
-        
-        // Set previous/next button events
-        document.getElementById('prevBtn').addEventListener('click', showPrevImage);
-        document.getElementById('nextBtn').addEventListener('click', showNextImage);
-        
-        // Back to top button
-        const scrollTopBtn = document.getElementById('scrollTopBtn');
-        
-        window.addEventListener('scroll', function() {
-            if (window.pageYOffset > 300) {
-                scrollTopBtn.classList.add('show');
-            } else {
-                scrollTopBtn.classList.remove('show');
-            }
-        });
-        
-        scrollTopBtn.addEventListener('click', function() {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        });
-        
-        // Dark mode toggle
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        let darkMode = localStorage.getItem('darkMode') === 'true';
-        
-        function updateDarkMode() {
-            if (darkMode) {
-                document.documentElement.classList.add('dark');
-                darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
-                
-                // Update header gradient
-                const header = document.querySelector('header');
-                header.classList.remove('from-primary-600', 'to-purple-600');
-                header.classList.add('from-blue-900', 'to-indigo-900');
-                
-                // Update wave SVG color
-                const wavePath = document.querySelector('header svg path');
-                wavePath.setAttribute('fill', '#0f172a');
-            } else {
-                document.documentElement.classList.remove('dark');
-                darkModeToggle.innerHTML = '<i class="fas fa-moon"></i>';
-                
-                // Restore header gradient
-                const header = document.querySelector('header');
-                header.classList.remove('from-blue-900', 'to-indigo-900');
-                header.classList.add('from-primary-600', 'to-purple-600');
-                
-                // Restore wave SVG color
-                const wavePath = document.querySelector('header svg path');
-                wavePath.setAttribute('fill', '#f9fafb');
-            }
-        }
-        
-        updateDarkMode();
-        
-        darkModeToggle.addEventListener('click', function() {
-            darkMode = !darkMode;
-            localStorage.setItem('darkMode', darkMode);
-            updateDarkMode();
-        });
-        
-        // Page load completion initialization - 使用DOMContentLoaded来提前创建布局
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOMContentLoaded event triggered');
-            
-            // Remove body loading class
-            setTimeout(() => {
-                document.body.classList.remove('loading');
-            }, 100);
-            
-            // 立即初始化瀑布流布局，不等待window.load
+            // 立即初始化瀑布流布局
             initializeMasonryLayout();
             
-            // 继续其他初始化
-            console.log(`Found ${photoFilenames.length} photos`);
-            updateStyles();
-            
-            // Initialize filter functionality
+            // 简化初始化
             setTimeout(function() {
                 initFilters();
                 allPhotoCards = Array.from(document.querySelectorAll('.photo-card'));
-                updateFileTypeFilters();
             }, 300);
             
-            // Start checking cache status
+            // 检查缓存状态
             checkCacheStatus();
         });
-        
-        // 优化初始化瀑布流布局函数
-        function initializeMasonryLayout() {
-            const photoGrid = document.getElementById('photoGrid');
-            const photoData = document.getElementById('photoData');
+
+        // 鼠标跟随效果
+        function initMouseFollower() {
+            const cursorDot = document.querySelector('.cursor-dot');
+            const cursorOutline = document.querySelector('.cursor-outline');
             
-            if (!photoData || !photoGrid) {
-                console.error('Required elements not found');
-                return;
-            }
+            if (!cursorDot || !cursorOutline) return;
             
-            // 获取所有照片数据
-            const photosData = Array.from(photoData.querySelectorAll('.photo-card'));
-            console.log(`Found ${photosData.length} photo data items`);
+            let mouseX = window.innerWidth / 2;
+            let mouseY = window.innerHeight / 2;
+            let dotX = mouseX;
+            let dotY = mouseY;
+            let outlineX = mouseX;
+            let outlineY = mouseY;
+            let raf;
             
-            if (photosData.length === 0) {
-                console.log('No photos to display');
-                return;
-            }
+            // 检测可交互元素
+            const interactiveElements = 'a, button, select, input, textarea, [role="button"], .photo-img-container, .photo-card, img';
             
-            // 清空网格
-            photoGrid.innerHTML = '';
-            
-            // 临时设置可见以计算宽度
-            photoGrid.style.visibility = 'hidden';
-            photoGrid.style.display = 'flex';
-            
-            // 强制浏览器重新计算布局
-            void photoGrid.offsetWidth;
-            
-            // 计算列数
-            const containerWidth = photoGrid.clientWidth;
-            const columnWidth = getColumnWidth();
-            const gap = 16;
-            
-            let columnCount = Math.floor((containerWidth + gap) / (columnWidth + gap));
-            
-            // 小屏幕强制为1列
-            if (window.innerWidth <= 640) {
-                columnCount = 1;
-            }
-            
-            // 至少有1列
-            columnCount = Math.max(1, columnCount);
-            
-            console.log(`Container width: ${containerWidth}px, Column width: ${columnWidth}px, Calculated column count: ${columnCount}`);
-            
-            // 创建列
-            const columns = [];
-            for (let i = 0; i < columnCount; i++) {
-                const column = document.createElement('div');
-                column.classList.add('masonry-column');
-                column.setAttribute('data-column-index', i);
-                photoGrid.appendChild(column);
-                columns.push(column);
-            }
-            
-            // 列高度数组
-            const columnHeights = new Array(columnCount).fill(0);
-            
-            // 创建卡片并分配到列
-            photosData.forEach(photoData => {
-                // 创建新卡片
-                const card = createPhotoCard(photoData);
+            document.addEventListener('mousemove', function(e) {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
                 
-                // 找出当前高度最小的列
-                const minHeightIndex = columnHeights.indexOf(Math.min(...columnHeights));
-                columns[minHeightIndex].appendChild(card);
+                // 检查是否在可点击元素上
+                const target = e.target;
+                const isClickable = target.matches(interactiveElements) || target.closest(interactiveElements);
                 
-                // 更新列高度
-                const width = parseInt(photoData.dataset.width, 10) || 300;
-                const height = parseInt(photoData.dataset.height, 10) || 200;
-                const aspectRatio = width / height;
-                const estimatedHeight = (columnWidth / aspectRatio) + 60;
-                columnHeights[minHeightIndex] += estimatedHeight + gap;
+                if (isClickable) {
+                    cursorOutline.classList.add('cursor-hover');
+                } else {
+                    cursorOutline.classList.remove('cursor-hover');
+                }
             });
             
-            // 显示布局
-            setTimeout(() => {
-                photoGrid.classList.add('loaded');
-                photoGrid.style.visibility = 'visible';
-                photoGrid.style.opacity = '1';
+            // 在小屏幕设备上隐藏自定义光标
+            function checkScreenSize() {
+                if (window.innerWidth <= 1024) {
+                    cursorDot.style.display = 'none';
+                    cursorOutline.style.display = 'none';
+                    // 取消动画循环以节省资源
+                    if (raf) {
+                        cancelAnimationFrame(raf);
+                        raf = null;
+                    }
+                } else {
+                    cursorDot.style.display = 'block';
+                    cursorOutline.style.display = 'block';
+                    // 如果动画已停止，则重新启动
+                    if (!raf) {
+                        animate();
+                    }
+                }
+            }
+            
+            checkScreenSize();
+            window.addEventListener('resize', checkScreenSize);
+            
+            // 动画循环 - 使用requestAnimationFrame实现平滑跟随效果
+            function animate() {
+                // 使用更低的缓动系数，确保移动更平滑
+                dotX += (mouseX - dotX) * 0.15;
+                dotY += (mouseY - dotY) * 0.15;
                 
-                // 初始化懒加载
-                initLazyLoading();
+                outlineX += (mouseX - outlineX) * 0.08;
+                outlineY += (mouseY - outlineY) * 0.08;
                 
-                console.log('Masonry layout created and visible');
-            }, 100);
+                // 使用Math.round防止亚像素渲染导致模糊
+                cursorDot.style.transform = `translate3d(${Math.round(dotX)}px, ${Math.round(dotY)}px, 0)`;
+                cursorOutline.style.transform = `translate3d(${Math.round(outlineX)}px, ${Math.round(outlineY)}px, 0)`;
+                
+                raf = requestAnimationFrame(animate);
+            }
+            
+            animate();
+            
+            // 添加点击效果
+            document.addEventListener('mousedown', function() {
+                cursorDot.classList.add('cursor-clicking');
+                cursorOutline.classList.add('cursor-clicking');
+            });
+            
+            document.addEventListener('mouseup', function() {
+                cursorDot.classList.remove('cursor-clicking');
+                cursorOutline.classList.remove('cursor-clicking');
+            });
+        }
+        
+        // 简化的页面滚动效果初始化
+        function initScrollEffects() {
+            const nav = document.querySelector('.minimal-nav');
+            
+            window.addEventListener('scroll', function() {
+                // 导航栏滚动效果
+                if (nav && window.scrollY > 50) {
+                    nav.classList.add('scrolled');
+                } else if (nav) {
+                    nav.classList.remove('scrolled');
+                }
+                
+                // 回到顶部按钮
+                if (window.scrollY > 300) {
+                    scrollTopBtn.classList.add('show');
+                } else {
+                    scrollTopBtn.classList.remove('show');
+                }
+            });
+        }
+
+        // 初始化筛选功能
+        function initFilters() {
+            console.log('初始化筛选功能');
+            
+            // 搜索输入事件
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', debounce(function() {
+                    applyFilters();
+                }, 300));
+            }
+            
+            // 排序下拉框事件
+            const sortSelect = document.getElementById('sortSelect');
+            if (sortSelect) {
+                sortSelect.addEventListener('change', function() {
+                    applyFilters();
+                });
+            }
+        }
+        
+        // 应用筛选条件
+        function applyFilters() {
+            console.log('应用筛选条件');
+            
+            // 如果照片尚未加载，先加载一次
+            if (allPhotoCards.length === 0) {
+                allPhotoCards = Array.from(document.querySelectorAll('.photo-card'));
+            }
+            
+            // 获取搜索关键词
+            const searchInput = document.getElementById('searchInput');
+            const searchText = searchInput ? searchInput.value.toLowerCase().trim() : '';
+            
+            // 筛选匹配条件的照片
+            let filteredCards = allPhotoCards.filter(card => {
+                // 检查搜索关键词
+                if (searchText) {
+                    const displayName = card.dataset.displayname.toLowerCase();
+                    if (!displayName.includes(searchText)) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+            
+            // 应用排序
+            const sortSelect = document.getElementById('sortSelect');
+            if (sortSelect) {
+                const sortValue = sortSelect.value;
+                filteredCards = sortCards(filteredCards, sortValue);
+            }
+            
+            // 更新显示
+            updateDisplay(filteredCards);
+            
+            console.log(`筛选结果: 找到 ${filteredCards.length} 张照片`);
+        }
+
+        // 排序照片卡片
+        function sortCards(cards, sortValue) {
+            return [...cards].sort((a, b) => {
+                // 使用date属性中存储的原图修改日期
+                const dateA = a.dataset.date;
+                const dateB = b.dataset.date;
+                
+                // 解析为时间戳以进行比较
+                const timeA = parseDate(dateA).getTime();
+                const timeB = parseDate(dateB).getTime();
+                
+                if (sortValue === 'date-asc') {
+                    return timeA - timeB;
+                } else {
+                    return timeB - timeA;
+                }
+            });
+        }
+
+        // 解析日期字符串为Date对象，处理各种可能的日期格式
+        function parseDate(dateStr) {
+            if (!dateStr) return new Date(0);
+            
+            try {
+                // 尝试直接解析
+                const parsed = new Date(dateStr);
+                
+                // 检查是否为有效日期
+                if (!isNaN(parsed.getTime())) {
+                    return parsed;
+                }
+                
+                // 如果直接解析失败，尝试处理常见的格式
+                // 例如: "YYYY-MM-DD", "MM/DD/YYYY", "DD-MM-YYYY"等
+                const formats = [
+                    // ISO格式 YYYY-MM-DD
+                    /(\d{4})-(\d{2})-(\d{2})/,
+                    // 美式格式 MM/DD/YYYY
+                    /(\d{1,2})\/(\d{1,2})\/(\d{4})/,
+                    // 欧式格式 DD-MM-YYYY
+                    /(\d{1,2})-(\d{1,2})-(\d{4})/,
+                    // 有时间的格式 YYYY-MM-DD HH:MM:SS
+                    /(\d{4})-(\d{2})-(\d{2})[\sT](\d{2}):(\d{2}):(\d{2})/
+                ];
+                
+                for (const format of formats) {
+                    const match = dateStr.match(format);
+                    if (match) {
+                        if (format === formats[0]) {
+                            // YYYY-MM-DD
+                            return new Date(match[1], match[2] - 1, match[3]);
+                        } else if (format === formats[1]) {
+                            // MM/DD/YYYY
+                            return new Date(match[3], match[1] - 1, match[2]);
+                        } else if (format === formats[2]) {
+                            // DD-MM-YYYY
+                            return new Date(match[3], match[2] - 1, match[1]);
+                        } else if (format === formats[3]) {
+                            // YYYY-MM-DD HH:MM:SS
+                            return new Date(match[1], match[2] - 1, match[3], match[4], match[5], match[6]);
+                        }
+                    }
+                }
+                
+                // 兜底：如果所有格式都不匹配，返回当前日期
+                console.warn(`无法解析日期: ${dateStr}`);
+                return new Date();
+            } catch (e) {
+                console.error(`日期解析出错: ${dateStr}`, e);
+                return new Date();
+            }
+        }
+        
+        // 防抖函数，避免频繁操作
+        function debounce(func, wait) {
+            let timeout;
+            return function() {
+                const context = this;
+                const args = arguments;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    func.apply(context, args);
+                }, wait);
+            };
         }
         
         // 创建照片卡片的辅助函数
@@ -1186,23 +1385,24 @@
             const thumbnail = photoData.dataset.thumbnail;
             const displayName = photoData.dataset.displayname;
             const date = photoData.dataset.date;
-            const size = photoData.dataset.size;
-            const dimensions = photoData.dataset.dimensions;
             
             // 创建卡片
             const card = document.createElement('div');
-            card.className = 'photo-card bg-white rounded-lg shadow-sm overflow-hidden masonry-item lazy-loading';
+            card.className = 'photo-card masonry-item lazy-loading';
             card.dataset.filename = filename;
             card.dataset.width = width;
             card.dataset.height = height;
+            card.dataset.displayname = displayName;
+            card.dataset.date = date;
             
             // 创建图片容器
             const imgContainer = document.createElement('div');
             imgContainer.className = 'photo-img-container';
             imgContainer.style.aspectRatio = `${width} / ${height}`;
-            imgContainer.onclick = function() {
+            // 确保点击事件会打开模态框
+            imgContainer.addEventListener('click', function() {
                 openModal(filename);
-            };
+            });
             
             // 计算宽高比
             const aspectRatio = width / height;
@@ -1218,372 +1418,67 @@
             img.loading = 'lazy';
             img.src = `data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 viewBox%3D%220 0 ${width} ${height}%22%3E%3C%2Fsvg%3E`;
             
-            // 创建覆盖层
+            // 创建精简版覆盖层
             const overlay = document.createElement('div');
             overlay.className = 'photo-overlay';
             overlay.innerHTML = `
-                <h3 class="text-white font-medium truncate">${displayName}</h3>
-                <div class="flex flex-wrap gap-2 mt-1 mb-2">
-                    <span class="text-xs text-white bg-black bg-opacity-30 px-2 py-1 rounded-full">${date}</span>
-                    <span class="text-xs text-white bg-black bg-opacity-30 px-2 py-1 rounded-full">${size}</span>
-                    <span class="text-xs text-white bg-black bg-opacity-30 px-2 py-1 rounded-full">${dimensions}</span>
+                <div class="flex flex-col">
+                    <h3 class="text-white font-medium truncate">${displayName}</h3>
+                    <span class="text-xs text-white bg-black bg-opacity-30 px-2 py-1 rounded-full mt-1">${date}</span>
                 </div>
-                <button class="mt-2 bg-white bg-opacity-20 hover:bg-opacity-30 text-white text-sm py-1 px-3 rounded-full backdrop-blur-sm transition-all">
-                    <i class="fas fa-expand-alt mr-1"></i> View Full Size
-                </button>
-            `;
-            
-            // 创建信息区域
-            const infoDiv = document.createElement('div');
-            infoDiv.className = 'photo-info';
-            infoDiv.innerHTML = `
-                <h3 class="text-gray-800 font-medium truncate">${displayName}</h3>
-                <p class="text-xs text-gray-500">${date}</p>
             `;
             
             // 组装卡片
             imgContainer.appendChild(img);
             imgContainer.appendChild(overlay);
             card.appendChild(imgContainer);
-            card.appendChild(infoDiv);
             
-            // 设置View Full Size按钮的点击事件
-            const viewButton = overlay.querySelector('button');
-            viewButton.onclick = function(event) {
-                event.stopPropagation();
-                openModal(filename);
-            };
+            // 确保整个卡片都能响应点击
+            card.style.cursor = 'pointer';
             
             return card;
         }
-
-        // 移除window.load初始化瀑布流的代码
-        window.addEventListener('load', function() {
-            console.log('Window load event triggered, all resources loaded');
-            
-            // 仅检查图片加载状态，不再重新创建布局
-            setTimeout(function() {
-                // 确保所有图片容器样式正确
-                document.querySelectorAll('.photo-img-container').forEach(container => {
-                    const img = container.querySelector('img');
-                    if (img && img.complete) {
-                        img.classList.add('loaded');
-                    }
-                });
-                
-                // 输出最终布局信息
-                const columns = document.querySelectorAll('.masonry-column');
-                const containerWidth = photoGrid.clientWidth;
-                console.log(`Final layout check - Container width: ${containerWidth}px, Actual column count: ${columns.length}`);
-            }, 1000);
-        });
-
-        // Get column width based on current viewport width
-        function getColumnWidth() {
-            if (window.innerWidth <= 640) {
-                return Math.min(450, window.innerWidth - 32); // Small screen, subtract left and right padding
-            } else if (window.innerWidth < 768) {
-                return 300; // Default column width
-            } else if (window.innerWidth < 1280) {
-                return 280; // Medium screen
-            } else {
-                return 260; // Large screen
-            }
-        }
         
-        // Check cache processing status
-        function checkCacheStatus() {
-            fetch('/api/cache/status')
-                .then(response => response.json())
-                .then(data => {
-                    // 缓存处理信息只记录到控制台，不再显示UI元素
-                    if (data.processing) {
-                        console.log(`Cache processing: ${data.progress.percent}%, ${data.progress.processed}/${data.progress.total} images`);
-                        // 继续检查
-                        setTimeout(checkCacheStatus, 2000);
-                    } else {
-                        if (data.progress.total > 0 && data.progress.processed > 0) {
-                            console.log(`Cache processing completed: ${data.progress.processed}/${data.progress.total} images`);
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error('Error checking cache status:', error);
-                    // Continue trying on error with longer delay
-                    setTimeout(checkCacheStatus, 5000);
-                });
-        }
-        
-        // Modify CSS styles to ensure masonry grid and photo cards visible
-        function updateStyles() {
-            // Create new style element
-            const style = document.createElement('style');
-            style.textContent = `
-                .masonry-grid.loaded {
-                    display: flex !important;
-                    opacity: 1 !important;
-                    transform: translateY(0) !important;
-                }
-                
-                .masonry-column {
-                    opacity: 1 !important;
-                    visibility: visible !important;
-                }
-                
-                .photo-card {
-                    opacity: 1 !important;
-                    visibility: visible !important;
-                }
-            `;
-            document.head.appendChild(style);
-            console.log('Extra styles added to ensure masonry and photo cards visible');
-        }
-
-        // Initialize filter functionality
-        function initFilters() {
-            console.log('Initializing filter functionality');
-            
-            // Get filter button and panel
-            const filterBtn = document.getElementById('filterBtn');
-            const filterPanel = document.getElementById('filterPanel');
-            
-            // Filter button click event
-            if (filterBtn) {
-                filterBtn.addEventListener('click', function() {
-                    filterPanel.classList.toggle('hidden');
-                });
-            }
-            
-            // Search input events
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) {
-                searchInput.addEventListener('input', debounce(function() {
-                    applyFilters();
-                }, 300));
-            }
-            
-            // Sort dropdown events
-            const sortSelect = document.getElementById('sortSelect');
-            if (sortSelect) {
-                sortSelect.addEventListener('change', function() {
-                    applyFilters();
-                });
-            }
-            
-            // Apply filters button
-            const applyFiltersBtn = document.getElementById('applyFiltersBtn');
-            if (applyFiltersBtn) {
-                applyFiltersBtn.addEventListener('click', function() {
-                    applyFilters();
-                    filterPanel.classList.add('hidden');
-                });
-            }
-            
-            // Reset filters button
-            const resetFiltersBtn = document.getElementById('resetFiltersBtn');
-            if (resetFiltersBtn) {
-                resetFiltersBtn.addEventListener('click', function() {
-                    resetFilters();
-                    applyFilters();
-                });
-            }
-            
-            // File type filters
-            const fileTypeFilters = document.querySelectorAll('.file-type-filter');
-            fileTypeFilters.forEach(filter => {
-                filter.addEventListener('change', function() {
-                    updateFileTypeFilters();
-                });
-            });
-        }
-        
-        // Reset all filters
-        function resetFilters() {
-            // Reset search box
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) searchInput.value = '';
-            
-            // Reset sort to default
-            const sortSelect = document.getElementById('sortSelect');
-            if (sortSelect) sortSelect.value = 'date-desc';
-            
-            // Reset date range
-            const dateFrom = document.getElementById('dateFrom');
-            const dateTo = document.getElementById('dateTo');
-            if (dateFrom) dateFrom.value = '';
-            if (dateTo) dateTo.value = '';
-            
-            // Reset file type filters (all checked)
-            const fileTypeFilters = document.querySelectorAll('.file-type-filter');
-            fileTypeFilters.forEach(filter => {
-                filter.checked = true;
-            });
-            
-            console.log('All filters have been reset');
-        }
-        
-        // Apply filters
-        function applyFilters() {
-            console.log('Applying filters');
-            
-            // If photos haven't been loaded yet, load once
-            if (allPhotoCards.length === 0) {
-                allPhotoCards = Array.from(document.querySelectorAll('.photo-card'));
-            }
-            
-            // Get search keywords
-            const searchInput = document.getElementById('searchInput');
-            const searchText = searchInput ? searchInput.value.toLowerCase().trim() : '';
-            
-            // Get date range
-            const dateFrom = document.getElementById('dateFrom');
-            const dateTo = document.getElementById('dateTo');
-            const fromDate = dateFrom && dateFrom.value ? new Date(dateFrom.value) : null;
-            const toDate = dateTo && dateTo.value ? new Date(dateTo.value) : null;
-            
-            // Get file type filters
-            const fileTypeFilters = document.querySelectorAll('.file-type-filter:checked');
-            const selectedFileTypes = Array.from(fileTypeFilters).map(filter => filter.value).join(',').split(',');
-            
-            // Filter photos that match criteria
-            let filteredCards = allPhotoCards.filter(card => {
-                // Check search keywords
-                if (searchText) {
-                    const displayName = card.querySelector('.photo-info h3').textContent.toLowerCase();
-                    if (!displayName.includes(searchText)) {
-                        return false;
-                    }
-                }
-                
-                // Check date range
-                if (fromDate || toDate) {
-                    const dateText = card.querySelector('.photo-info p').textContent;
-                    const cardDate = parseDate(dateText);
-                    
-                    if (fromDate && cardDate < fromDate) {
-                        return false;
-                    }
-                    
-                    if (toDate) {
-                        // Set toDate to end of day
-                        const endDate = new Date(toDate);
-                        endDate.setHours(23, 59, 59, 999);
-                        if (cardDate > endDate) {
-                            return false;
-                        }
-                    }
-                }
-                
-                // Check file type
-                if (selectedFileTypes.length > 0) {
-                    const filename = card.dataset.filename;
-                    const fileExt = filename.substring(filename.lastIndexOf('.')).toLowerCase();
-                    if (!selectedFileTypes.includes(fileExt)) {
-                        return false;
-                    }
-                }
-                
-                return true;
-            });
-            
-            // Apply sort
-            const sortSelect = document.getElementById('sortSelect');
-            if (sortSelect) {
-                const sortValue = sortSelect.value;
-                filteredCards = sortCards(filteredCards, sortValue);
-            }
-            
-            // Update display
-            updateDisplay(filteredCards);
-            
-            console.log(`Filter results: ${filteredCards.length} photos found`);
-        }
-        
-        // Parse date string, return Date object
-        function parseDate(dateStr) {
-            // Assume date format is "YYYY-MM-DD" or other common formats
-            try {
-                return new Date(dateStr);
-            } catch (e) {
-                console.error(`Date parsing failed: ${dateStr}`, e);
-                return new Date(0); // Return January 1, 1970
-            }
-        }
-        
-        // Sort photo cards
-        function sortCards(cards, sortValue) {
-            return [...cards].sort((a, b) => {
-                const dateA = a.querySelector('.photo-info p').textContent;
-                const dateB = b.querySelector('.photo-info p').textContent;
-                
-                const timeA = new Date(dateA).getTime();
-                const timeB = new Date(dateB).getTime();
-                
-                if (sortValue === 'date-asc') {
-                    return timeA - timeB;
-                } else {
-                    return timeB - timeA;
-                }
-            });
-        }
-        
-        // Update file type filter status
-        function updateFileTypeFilters() {
-            // Update apply filter button status
-            const applyBtn = document.getElementById('applyFiltersBtn');
-            const fileTypeFilters = document.querySelectorAll('.file-type-filter:checked');
-            
-            if (fileTypeFilters.length === 0) {
-                // If no file types selected, disable apply button
-                if (applyBtn) {
-                    applyBtn.disabled = true;
-                    applyBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                }
-            } else {
-                // Otherwise enable apply button
-                if (applyBtn) {
-                    applyBtn.disabled = false;
-                    applyBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                }
-            }
-        }
-        
-        // Update photo display
-        function updateDisplay(filteredCards) {
-            // Clear current display
+        // 初始化瀑布流布局
+        function initializeMasonryLayout() {
             const photoGrid = document.getElementById('photoGrid');
+            const photoData = document.getElementById('photoData');
             
-            // If no photos, show message
-            if (filteredCards.length === 0) {
-                photoGrid.innerHTML = `
-                    <div class="w-full text-center py-16">
-                        <div class="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-gray-100 text-gray-500">
-                            <i class="fas fa-search text-2xl"></i>
-                        </div>
-                        <h2 class="text-xl font-medium text-gray-700 mb-2">No matching photos found</h2>
-                        <p class="text-gray-500">Try adjusting your search criteria or filter options</p>
-                    </div>
-                `;
+            if (!photoData || !photoGrid) {
+                console.error('未找到必要的元素');
                 return;
             }
             
-            // Rebuild masonry layout
+            // 获取所有照片数据
+            const photosData = Array.from(photoData.querySelectorAll('.photo-card'));
+            console.log(`找到 ${photosData.length} 个照片数据项`);
+            
+            if (photosData.length === 0) {
+                console.log('没有照片可显示');
+                return;
+            }
+            
+            // 清空网格
             photoGrid.innerHTML = '';
             
-            // Use current column width and spacing to create empty columns
+            // 计算列数
             const containerWidth = photoGrid.clientWidth;
             const columnWidth = getColumnWidth();
-            const gap = 16;
+            const gap = 20; // 更新为新的间距值
             
             let columnCount = Math.floor((containerWidth + gap) / (columnWidth + gap));
             
-            // Small screens force to 1 column
+            // 小屏幕强制为1列
             if (window.innerWidth <= 640) {
                 columnCount = 1;
             }
+            
+            // 至少有1列
             columnCount = Math.max(1, columnCount);
             
-            // Create columns
+            console.log(`容器宽度: ${containerWidth}px, 列宽: ${columnWidth}px, 计算列数: ${columnCount}`);
+            
+            // 创建列
             const columns = [];
             for (let i = 0; i < columnCount; i++) {
                 const column = document.createElement('div');
@@ -1593,80 +1488,139 @@
                 columns.push(column);
             }
             
-            // Based on height to allocate cards to shortest column
+            // 列高度数组
+            const columnHeights = new Array(columnCount).fill(0);
+            
+            // 创建卡片并分配到列
+            photosData.forEach((photoData) => {
+                // 创建新卡片
+                const card = createPhotoCard(photoData);
+                
+                // 添加点击事件到整个卡片
+                card.addEventListener('click', function() {
+                    openModal(this.dataset.filename);
+                });
+                
+                // 找出当前高度最小的列
+                const minHeightIndex = columnHeights.indexOf(Math.min(...columnHeights));
+                columns[minHeightIndex].appendChild(card);
+                
+                // 更新列高度
+                const width = parseInt(photoData.dataset.width, 10) || 300;
+                const height = parseInt(photoData.dataset.height, 10) || 200;
+                const aspectRatio = width / height;
+                const estimatedHeight = (columnWidth / aspectRatio) + 60;
+                columnHeights[minHeightIndex] += estimatedHeight + gap;
+            });
+            
+            // 显示布局
+            setTimeout(() => {
+                // 移除body加载状态
+                document.body.classList.remove('loading');
+                
+                photoGrid.classList.add('loaded');
+                photoGrid.style.visibility = 'visible';
+                photoGrid.style.opacity = '1';
+                
+                // 初始化懒加载
+                initLazyLoading();
+                
+                console.log('瀑布流布局创建并可见');
+            }, 100);
+        }
+        
+        // 获取基于当前视口宽度的列宽
+        function getColumnWidth() {
+            if (window.innerWidth <= 640) {
+                return Math.min(450, window.innerWidth - 32);
+            } else if (window.innerWidth < 768) {
+                return 300;
+            } else if (window.innerWidth < 1280) {
+                return 280;
+            } else {
+                return 260;
+            }
+        }
+        
+        // 更新照片显示
+        function updateDisplay(filteredCards) {
+            // 清空当前显示
+            const photoGrid = document.getElementById('photoGrid');
+            
+            // 如果没有照片，显示消息
+            if (filteredCards.length === 0) {
+                photoGrid.innerHTML = `
+                    <div class="w-full text-center py-16">
+                        <div class="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-medium text-light/50">
+                            <i class="fas fa-search text-2xl"></i>
+                        </div>
+                        <h2 class="text-xl font-medium text-light mb-2">No matching photos found</h2>
+                        <p class="text-medium/80">Please try adjusting your search criteria or filter options</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // 重建瀑布流布局
+            photoGrid.innerHTML = '';
+            
+            // 使用当前列宽和间距创建空列
+            const containerWidth = photoGrid.clientWidth;
+            const columnWidth = getColumnWidth();
+            const gap = 20;
+            
+            let columnCount = Math.floor((containerWidth + gap) / (columnWidth + gap));
+            
+            // 小屏幕强制为1列
+            if (window.innerWidth <= 640) {
+                columnCount = 1;
+            }
+            columnCount = Math.max(1, columnCount);
+            
+            // 创建列
+            const columns = [];
+            for (let i = 0; i < columnCount; i++) {
+                const column = document.createElement('div');
+                column.classList.add('masonry-column');
+                column.setAttribute('data-column-index', i);
+                photoGrid.appendChild(column);
+                columns.push(column);
+            }
+            
+            // 基于高度分配卡片到最短列
             const columnHeights = new Array(columnCount).fill(0);
             
             filteredCards.forEach(card => {
                 const clone = card.cloneNode(true);
                 clone.classList.add('masonry-item');
                 
-                // Get image aspect ratio
+                // 添加点击事件到整个卡片
+                clone.addEventListener('click', function() {
+                    openModal(this.dataset.filename);
+                });
+                
+                // 获取图片宽高比
                 const width = parseInt(card.dataset.width, 10) || 300;
                 const height = parseInt(card.dataset.height, 10) || 200;
                 
-                // Set image container aspect ratio
-                const imgContainer = clone.querySelector('.photo-img-container');
-                if (imgContainer && width && height) {
-                    // Calculate aspect ratio
-                    const aspectRatio = width / height;
-                    
-                    // Special handling for wide images
-                    if (aspectRatio >= 2) {
-                        imgContainer.classList.add('wide-image');
-                        imgContainer.style.aspectRatio = `${width} / ${Math.max(height, width/2.5)}`;
-                    } else {
-                        imgContainer.style.aspectRatio = `${width} / ${height}`;
-                    }
-                    
-                    // Ensure click event is set correctly
-                    imgContainer.onclick = function() {
-                        openModal(clone.dataset.filename);
-                    };
-                }
-                
-                // Find current column with smallest height
+                // 查找当前高度最小的列
                 const minHeightIndex = columnHeights.indexOf(Math.min(...columnHeights));
                 columns[minHeightIndex].appendChild(clone);
                 
-                // Update column height
+                // 更新列高度
                 const aspectRatio = width / height;
                 const estimatedHeight = (columnWidth / aspectRatio) + 60;
                 columnHeights[minHeightIndex] += estimatedHeight + gap;
             });
-            
-            // Ensure image load effect
-            document.querySelectorAll('.photo-card img').forEach(img => {
-                if (img.complete) {
-                    img.classList.add('loaded');
-                } else {
-                    img.addEventListener('load', function() {
-                        img.classList.add('loaded');
-                    });
-                }
-            });
         }
         
-        // Debounce function to avoid frequent operations
-        function debounce(func, wait) {
-            let timeout;
-            return function() {
-                const context = this;
-                const args = arguments;
-                clearTimeout(timeout);
-                timeout = setTimeout(() => {
-                    func.apply(context, args);
-                }, wait);
-            };
-        }
-
-        // Initialize lazy loading functionality for photo cards
+        // 初始化懒加载功能
         function initLazyLoading() {
-            console.log('Initializing lazy loading for photo cards');
+            console.log('初始化照片卡片懒加载');
             
             // 先隐藏所有卡片但不使用display:none
             document.querySelectorAll('.photo-card').forEach(card => {
                 card.classList.add('lazy-loading');
-                // 移除display:none
                 
                 // 设置图片数据源，但不开始加载
                 const img = card.querySelector('img');
@@ -1680,10 +1634,8 @@
             if ('IntersectionObserver' in window) {
                 console.log('创建Intersection Observer');
                 const cardObserver = new IntersectionObserver((entries, observer) => {
-                    console.log(`检测到${entries.length}个元素`);
                     entries.forEach(entry => {
                         const card = entry.target;
-                        console.log(`元素 ${card.dataset.filename} 是否可见: ${entry.isIntersecting}`);
                         
                         if (entry.isIntersecting) {
                             // 获取图片元素
@@ -1691,10 +1643,7 @@
                             
                             // 只有当图片完成加载后才显示卡片
                             if (img && img.dataset.src) {
-                                console.log(`开始加载图片: ${img.dataset.src}`);
-                                
                                 img.onload = function() {
-                                    console.log(`图片加载完成: ${img.src}`);
                                     // 图片加载完成后，显示整个卡片
                                     card.classList.remove('lazy-loading');
                                     card.classList.add('lazy-loaded');
@@ -1704,6 +1653,10 @@
                                 // 开始加载图片
                                 img.src = img.dataset.src;
                                 delete img.dataset.src;
+                            } else {
+                                // 如果没有图片数据来源，也显示卡片
+                                card.classList.remove('lazy-loading');
+                                card.classList.add('lazy-loaded');
                             }
                             
                             // 停止观察已处理的卡片
@@ -1721,10 +1674,10 @@
                     cardObserver.observe(card);
                 });
                 
-                console.log('Intersection Observer initialized for lazy loading');
+                console.log('懒加载的Intersection Observer已初始化');
             } else {
                 // 不支持Intersection Observer的浏览器的备用方案
-                console.log('Intersection Observer not supported, using fallback');
+                console.log('不支持Intersection Observer，使用备用方案');
                 loadVisibleCards();
                 
                 // 添加滚动和调整大小事件的监听器
@@ -1733,7 +1686,7 @@
             }
         }
         
-        // 修改回退方法，使其也遵循相同的加载策略
+        // 加载可见卡片的备用方法
         function loadVisibleCards() {
             const cards = document.querySelectorAll('.photo-card.lazy-loading');
             
@@ -1757,7 +1710,7 @@
             });
         }
         
-        // Helper to check if element is in viewport
+        // 检查元素是否在视口中的辅助函数
         function isElementInViewport(el) {
             const rect = el.getBoundingClientRect();
             
@@ -1768,6 +1721,157 @@
                 rect.right <= (window.innerWidth || document.documentElement.clientWidth)
             );
         }
+        
+        // 检查缓存处理状态
+        function checkCacheStatus() {
+            fetch('/api/cache/status')
+                .then(response => response.json())
+                .then(data => {
+                    // 缓存处理信息只记录到控制台
+                    if (data.processing) {
+                        console.log(`缓存处理中: ${data.progress.percent}%, ${data.progress.processed}/${data.progress.total} 张图片`);
+                        // 继续检查
+                        setTimeout(checkCacheStatus, 2000);
+                    } else {
+                        if (data.progress.total > 0 && data.progress.processed > 0) {
+                            console.log(`缓存处理完成: ${data.progress.processed}/${data.progress.total} 张图片`);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('检查缓存状态时出错:', error);
+                });
+        }
+        
+        // 打开模态框显示全尺寸图片
+        function openModal(filename) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            const loader = document.getElementById('imageLoader');
+            const photoDate = document.getElementById('modalPhotoDate');
+            
+            // 显示加载动画
+            loader.style.display = 'block';
+            modalImg.style.display = 'none';
+            modalImg.classList.remove('show');
+            
+            // 设置当前索引
+            currentIndex = photoFilenames.indexOf(filename);
+            
+            // 显示模态框
+            modal.style.display = "flex";
+            setTimeout(() => {
+                modal.classList.add('show');
+            }, 10);
+            
+            // 加载图片
+            modalImg.onload = function() {
+                loader.style.display = 'none';
+                modalImg.style.display = 'block';
+                setTimeout(() => {
+                    modalImg.classList.add('show');
+                }, 10);
+                
+                // 更新图片信息
+                updatePhotoInfo(filename);
+            };
+            
+            // 加载全尺寸图片
+            modalImg.src = "/photos/" + filename;
+            
+            // 禁用背景滚动
+            document.body.style.overflow = "hidden";
+        }
+        
+        // 更新照片信息
+        function updatePhotoInfo(filename) {
+            // 查找相应的照片卡片以获取数据
+            const photoCard = Array.from(document.querySelectorAll('.photo-card')).find(
+                card => card.dataset.filename === filename
+            );
+            
+            if (!photoCard) return;
+            
+            // 更新模态框中的照片信息 - 只保留日期
+            const photoDate = document.getElementById('modalPhotoDate');
+            
+            // 从数据属性获取信息
+            const date = photoCard.dataset.date || 'Unknown date';
+            
+            // 设置日期
+            if (photoDate) photoDate.textContent = date;
+        }
+        
+        // 关闭模态框
+        function closeModal() {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            
+            modalImg.classList.remove('show');
+            modal.classList.remove('show');
+            
+            setTimeout(() => {
+                modal.style.display = "none";
+                // 恢复背景滚动
+                document.body.style.overflow = "auto";
+            }, 300);
+        }
+        
+        // 显示上一张图片
+        function showPrevImage() {
+            currentIndex = (currentIndex - 1 + photoFilenames.length) % photoFilenames.length;
+            openModal(photoFilenames[currentIndex]);
+        }
+        
+        // 显示下一张图片
+        function showNextImage() {
+            currentIndex = (currentIndex + 1) % photoFilenames.length;
+            openModal(photoFilenames[currentIndex]);
+        }
+        
+        // 点击模态框背景关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('imageModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        };
+        
+        // 键盘导航
+        document.addEventListener('keydown', function(event) {
+            if (document.getElementById('imageModal').style.display === 'flex') {
+                if (event.key === 'ArrowLeft') {
+                    showPrevImage();
+                } else if (event.key === 'ArrowRight') {
+                    showNextImage();
+                } else if (event.key === 'Escape') {
+                    closeModal();
+                }
+            }
+        });
+        
+        // 设置上一张/下一张按钮事件
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('prevBtn').addEventListener('click', showPrevImage);
+            document.getElementById('nextBtn').addEventListener('click', showNextImage);
+            
+            // 回到顶部按钮
+            const scrollTopBtn = document.getElementById('scrollTopBtn');
+            scrollTopBtn.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // 当窗口大小改变时重新计算布局
+        window.addEventListener('resize', debounce(function() {
+            if (document.querySelectorAll('.photo-card').length > 0) {
+                console.log('窗口大小改变，重新计算布局');
+                initializeMasonryLayout();
+            }
+        }, 300));
     </script>
 </body>
 </html> 
