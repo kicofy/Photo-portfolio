@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人摄影作品集</title>
+    <title>Personal Photography Portfolio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -53,28 +53,59 @@
             font-family: 'Inter', sans-serif;
             opacity: 1;
             transition: opacity 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
         
         body.loading {
             opacity: 0.6;
         }
         
-        /* 暗黑模式样式 */
+        /* 在布局加载前隐藏照片网格 */
+        #photoGrid {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        #photoGrid.loaded {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Empty state container */
+        .empty-state-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 50vh;
+        }
+        
+        /* Dark mode styles */
         .dark body {
-            background-color: #0f172a; /* 更深的蓝黑色背景 */
+            background-color: #0f172a; /* Darker blue background */
             color: #e2e8f0;
         }
         
         .dark .bg-white {
-            background-color: #1e293b; /* 卡片背景色 */
+            background-color: #1e293b; /* Card background color */
         }
         
         .dark .bg-gray-50 {
-            background-color: #0f172a; /* 主背景色 */
+            background-color: #0f172a; /* Main background color */
         }
         
         .dark .bg-gray-100 {
-            background-color: #1e293b; /* 轻微强调背景 */
+            background-color: #1e293b; /* Lightly emphasized background */
         }
         
         .dark .text-gray-800 {
@@ -113,7 +144,7 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
         }
         
-        /* 暗黑模式下卡片样式 */
+        /* Dark mode card styles */
         .dark .photo-card {
             background-color: #1e293b;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -123,17 +154,17 @@
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
         }
         
-        /* 暗黑模式下图片容器样式 */
+        /* Dark mode image container styles */
         .dark .photo-img-container {
-            background-color: #0f172a; /* 深色背景 */
+            background-color: #0f172a; /* Dark background */
         }
         
-        /* 暗黑模式下图片信息样式 */
+        /* Dark mode image info styles */
         .dark .photo-info {
             background-color: #1e293b;
         }
         
-        /* 暗黑模式下搜索和过滤样式 */
+        /* Dark mode search and filter styles */
         .dark input, .dark select {
             background-color: #334155;
             border-color: #475569;
@@ -149,7 +180,7 @@
             box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
         }
         
-        /* 暗黑模式下按钮样式 */
+        /* Dark mode button styles */
         .dark button.bg-gray-100 {
             background-color: #334155;
             color: #e2e8f0;
@@ -181,6 +212,28 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Add card lazy loading animation */
+        .photo-card.lazy-loading {
+            opacity: 0;
+            transform: translateY(20px);
+            visibility: hidden; /* 使用visibility而不是display属性 */
+            position: relative;
+            pointer-events: none; /* 防止与隐藏的卡片交互 */
+        }
+        
+        .photo-card.lazy-loaded {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            visibility: visible; /* 显示已加载的卡片 */
+            pointer-events: auto;
+        }
+        
+        /* 移除加载状态动画，因为我们不希望显示未加载完成的卡片 */
+        .photo-img-container.loading::before {
+            display: none;
         }
         
         .photo-card:hover {
@@ -233,7 +286,7 @@
             opacity: 0;
             transform: scale(0.95);
             transition: all 0.3s ease;
-            object-fit: contain; /* 确保图片按原比例显示 */
+            object-fit: contain; /* Ensure image displays at original aspect ratio */
         }
         
         .modal-content.show {
@@ -305,8 +358,8 @@
         }
         
         .masonry-column {
-            flex: 0 0 auto; /* 改为固定宽度，不伸缩 */
-            width: 300px; /* 固定列宽 */
+            flex: 0 0 auto; /* Changed to fixed width, no stretching */
+            width: 300px; /* Fixed column width */
             display: flex;
             flex-direction: column;
             gap: 16px;
@@ -314,21 +367,21 @@
         }
         
         @media (min-width: 768px) {
-            /* 在中等屏幕上，每列宽度稍微调整 */
+            /* On medium screens, adjust column width slightly */
             .masonry-column {
                 width: 280px;
             }
         }
         
         @media (min-width: 1280px) {
-            /* 在大屏幕上，可以稍微窄一点，放入更多列 */
+            /* On large screens, can be slightly narrower, to fit more columns */
             .masonry-column {
                 width: 260px;
             }
         }
         
         @media (max-width: 640px) {
-            /* 在小屏幕上保持响应式，充满容器 */
+            /* On small screens, maintain responsiveness, fill container */
             .masonry-column {
                 flex: 1 0 100%;
                 max-width: 450px;
@@ -344,40 +397,40 @@
             overflow: hidden;
         }
         
-        /* 修改图片容器样式 */
+        /* Modified image container styles */
         .photo-img-container {
             width: 100%;
             position: relative;
             overflow: hidden;
             background-color: #f5f5f5;
-            min-height: 150px; /* 确保容器有最小高度 */
-            cursor: pointer; /* 添加指针样式表明可点击 */
+            min-height: 150px; /* Ensure container has minimum height */
+            cursor: pointer; /* Add pointer style to indicate clickable */
         }
         
         .photo-img-container img {
             width: 100%;
             height: auto;
             display: block;
-            object-fit: contain; /* 默认使用contain确保图片完整显示 */
+            object-fit: contain; /* Default use contain to ensure image displays fully */
             transition: opacity 0.3s ease;
             opacity: 0;
         }
         
-        /* 针对宽图特殊处理，避免底部空白 */
+        /* Special handling for wide images, to avoid bottom blank */
         .photo-img-container.wide-image {
-            background-color: #000; /* 宽图底色改为黑色 */
+            background-color: #000; /* Change wide image bottom color to black */
         }
         
         .photo-img-container.wide-image img {
-            object-fit: cover; /* 宽图使用cover填满容器 */
-            height: 100%; /* 确保填满整个容器高度 */
+            object-fit: cover; /* Wide image use cover to fill container */
+            height: 100%; /* Ensure to fill entire container height */
         }
         
         .photo-img-container img.loaded {
             opacity: 1;
         }
         
-        /* 加载错误样式 */
+        /* Load error styles */
         .photo-img-container.load-error {
             background-color: #f8d7da;
             display: flex;
@@ -394,7 +447,7 @@
             color: #842029;
         }
         
-        /* 添加图片信息样式 */
+        /* Add image info styles */
         .photo-info {
             padding: 12px;
             background-color: white;
@@ -437,7 +490,7 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* 确保图片容器是模态框的中心 */
+        /* Ensure image container is centered in modal */
         .modal .flex.items-center.justify-center {
             width: 100%;
             height: 100%;
@@ -446,7 +499,7 @@
             justify-content: center;
         }
         
-        /* 暗黑模式下模态框样式 */
+        /* Dark mode modal styles */
         .dark .modal {
             background-color: rgba(0, 0, 0, 0.95);
         }
@@ -463,7 +516,7 @@
             background-color: rgba(51, 65, 85, 0.8);
         }
         
-        /* 暗黑模式下过滤面板样式 */
+        /* Dark mode filter panel styles */
         .dark #filterPanel {
             border-color: #334155;
         }
@@ -473,7 +526,7 @@
             border-color: #3b82f6;
         }
         
-        /* 暗黑模式下滚动到顶部按钮 */
+        /* Dark mode scroll to top button */
         .dark .scroll-top {
             background-color: rgba(30, 41, 59, 0.8);
         }
@@ -482,7 +535,7 @@
             background-color: rgba(51, 65, 85, 0.9);
         }
         
-        /* 暗黑模式下加载错误样式 */
+        /* Dark mode load error styles */
         .dark .photo-img-container.load-error {
             background-color: #4a1e1c;
         }
@@ -491,13 +544,13 @@
             color: #ef4444;
         }
         
-        /* 暗黑模式下导航栏样式 */
+        /* Dark mode navigation bar styles */
         .dark nav.bg-white {
             background-color: #1e293b;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
         }
         
-        /* 暗黑模式下页脚样式 */
+        /* Dark mode footer styles */
         .dark footer.bg-gray-800 {
             background-color: #0f172a;
             border-top: 1px solid #334155;
@@ -507,7 +560,7 @@
             border-color: #334155;
         }
         
-        /* 暗黑模式下主按钮样式 */
+        /* Dark mode main button styles */
         .dark .bg-primary-600 {
             background-color: #2563eb;
         }
@@ -528,12 +581,12 @@
             background-color: rgba(59, 130, 246, 0.2);
         }
         
-        /* 暗黑模式下标题下划线 */
+        /* Dark mode title underline */
         .dark .bg-primary-500 {
             background-color: #3b82f6;
         }
         
-        /* 暗黑模式下浏览作品按钮 */
+        /* Dark mode browse gallery button */
         .dark a.bg-white.text-primary-600 {
             background-color: rgba(30, 41, 59, 0.8);
             color: #60a5fa;
@@ -545,7 +598,7 @@
             color: #93c5fd;
         }
         
-        /* 改进加载状态样式 */
+        /* Improved load status styles */
         .photos-loading {
             min-height: 300px;
             display: flex;
@@ -575,7 +628,7 @@
             margin-bottom: 1rem;
         }
         
-        /* 添加淡入淡出动画 */
+        /* Add fade in/out animation */
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -587,13 +640,13 @@
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen loading">
-    <!-- 导航栏 -->
+    <!-- Navigation Bar -->
     <nav class="bg-white shadow-sm sticky top-0 z-30">
         <div class="container mx-auto px-4 py-3">
             <div class="flex justify-between items-center">
                 <a href="/" class="text-2xl font-bold text-gray-800 flex items-center">
                     <i class="fas fa-camera-retro mr-2 text-primary-600"></i>
-                    <span>摄影集</span>
+                    <span>Photo Gallery</span>
                 </a>
                 <div class="flex items-center space-x-4">
                     <button class="text-gray-600 hover:text-primary-600 transition-colors" id="darkModeToggle">
@@ -604,16 +657,16 @@
         </div>
     </nav>
 
-    <!-- 页面头部 -->
+    <!-- Page Header -->
     <header class="relative overflow-hidden bg-gradient-to-r from-primary-600 to-purple-600 text-white">
         <div class="absolute inset-0 bg-black opacity-30"></div>
         <div class="container mx-auto px-4 py-16 relative z-10">
             <div class="max-w-3xl mx-auto text-center">
-                <h1 class="text-4xl md:text-5xl font-bold mb-4 animate-fade-in">个人摄影作品集</h1>
-                <p class="text-xl opacity-90 mb-8 animate-slide-up">记录美好瞬间，分享精彩视角</p>
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 animate-fade-in">Personal Photography Portfolio</h1>
+                <p class="text-xl opacity-90 mb-8 animate-slide-up">Capturing beautiful moments, sharing unique perspectives</p>
                 <div class="flex justify-center">
-                    <a href="#gallery" class="bg-white text-primary-600 hover:bg-gray-100 font-medium px-6 py-3 rounded-lg shadow-md transition-all duration-300 flex items-center">
-                        <span>浏览作品</span>
+                    <a href="javascript:void(0)" id="browseGalleryBtn" class="bg-white text-primary-600 hover:bg-gray-100 font-medium px-6 py-3 rounded-lg shadow-md transition-all duration-300 flex items-center">
+                        <span>Browse Gallery</span>
                         <i class="fas fa-arrow-down ml-2"></i>
                     </a>
                 </div>
@@ -626,143 +679,117 @@
         </div>
     </header>
 
-    <!-- 主要内容 -->
+    <!-- Main Content -->
     <main class="container mx-auto px-4 py-12" id="gallery">
         {% if photos %}
             <div class="mb-8">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">我的作品集</h2>
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">My Portfolio</h2>
                 <div class="h-1 w-20 bg-primary-500 rounded"></div>
             </div>
             
-            <!-- 搜索和过滤 -->
+            <!-- Search and Filter -->
             <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div class="relative flex-grow max-w-md">
-                        <input type="text" id="searchInput" placeholder="搜索照片..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                        <input type="text" id="searchInput" placeholder="Search photos..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i class="fas fa-search text-gray-400"></i>
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-2">
                         <select id="sortSelect" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
-                            <option value="date-desc">最新优先</option>
-                            <option value="date-asc">最早优先</option>
+                            <option value="date-desc">Newest First</option>
+                            <option value="date-asc">Oldest First</option>
                         </select>
                         <button id="filterBtn" class="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
                             <i class="fas fa-filter text-gray-600"></i>
-                            <span>筛选</span>
+                            <span>Filter</span>
                         </button>
                     </div>
                 </div>
                 
-                <!-- 筛选面板 (默认隐藏) -->
+                <!-- Filter Panel (Hidden by Default) -->
                 <div id="filterPanel" class="mt-4 pt-4 border-t border-gray-200 hidden">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <h3 class="font-medium text-gray-700 mb-2">日期范围</h3>
+                            <h3 class="font-medium text-gray-700 mb-2">Date Range</h3>
                             <div class="flex gap-2">
                                 <input type="date" id="dateFrom" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
-                                <span class="self-center">至</span>
+                                <span class="self-center">to</span>
                                 <input type="date" id="dateTo" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
                             </div>
                         </div>
                         <div>
-                            <h3 class="font-medium text-gray-700 mb-2">文件类型</h3>
+                            <h3 class="font-medium text-gray-700 mb-2">File Type</h3>
                             <div class="flex flex-wrap gap-2">
                                 <label class="inline-flex items-center">
-                                    <input type="checkbox" class="file-type-filter" value=".jpg,.jpeg" checked class="rounded text-primary-600 focus:ring-primary-500">
+                                    <input type="checkbox" class="file-type-filter rounded text-primary-600 focus:ring-primary-500" value=".jpg,.jpeg" checked>
                                     <span class="ml-2">JPG/JPEG</span>
                                 </label>
                                 <label class="inline-flex items-center">
-                                    <input type="checkbox" class="file-type-filter" value=".png" checked class="rounded text-primary-600 focus:ring-primary-500">
+                                    <input type="checkbox" class="file-type-filter rounded text-primary-600 focus:ring-primary-500" value=".png" checked>
                                     <span class="ml-2">PNG</span>
                                 </label>
                                 <label class="inline-flex items-center">
-                                    <input type="checkbox" class="file-type-filter" value=".gif" checked class="rounded text-primary-600 focus:ring-primary-500">
+                                    <input type="checkbox" class="file-type-filter rounded text-primary-600 focus:ring-primary-500" value=".gif" checked>
                                     <span class="ml-2">GIF</span>
                                 </label>
                             </div>
                         </div>
                         <div class="flex justify-end items-end">
                             <button id="applyFiltersBtn" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">
-                                应用筛选
+                                Apply Filters
                             </button>
                             <button id="resetFiltersBtn" class="ml-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors">
-                                重置
+                                Reset
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- 默认使用瀑布流布局 -->
-            <div id="photosLoading" class="photos-loading">
-                <div class="spinner"></div>
-                <p class="text-gray-600 mt-3">正在加载照片集...</p>
-                <p class="text-gray-500 text-sm mt-2">首次加载可能需要一点时间，请耐心等待</p>
-                
-                <!-- 缓存处理进度条 -->
-                <div id="cacheProgressContainer" class="mt-4 w-full max-w-md hidden">
-                    <p class="text-sm text-gray-600 mb-1">缓存处理进度：<span id="cacheProgressText">0%</span></p>
-                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                        <div id="cacheProgressBar" class="bg-primary-600 h-2.5 rounded-full" style="width: 0%"></div>
-                    </div>
-                    <p id="cacheProgressDetail" class="text-xs text-gray-500 mt-1">处理中...</p>
+            <!-- Default Masonry Layout -->
+            <div class="masonry-grid" id="photoGrid" style="opacity: 0;">
+                <!-- 模板渲染时不直接显示照片，而是使用JavaScript动态创建 -->
+                <!-- 原始照片数据保存在隐藏容器中 -->
+                <div id="photoData" class="hidden">
+                    {% for photo in photos %}
+                        <div class="photo-card bg-white rounded-lg shadow-sm overflow-hidden" 
+                             data-filename="{{ photo.filename }}"
+                             data-width="{{ photo.width }}"
+                             data-height="{{ photo.height }}"
+                             data-thumbnail="{{ photo.thumbnail }}"
+                             data-displayname="{{ photo.display_name }}" 
+                             data-date="{{ photo.date }}"
+                             data-size="{{ photo.size }}"
+                             data-dimensions="{{ photo.dimensions }}">
+                        </div>
+                    {% endfor %}
                 </div>
-            </div>
-            <div class="masonry-grid" id="photoGrid">
-                {% for photo in photos %}
-                    <div class="photo-card bg-white rounded-lg shadow-sm overflow-hidden" 
-                         data-filename="{{ photo.filename }}"
-                         data-width="{{ photo.width }}"
-                         data-height="{{ photo.height }}">
-                        <div class="photo-img-container" onclick="openModal('{{ photo.filename }}')">
-                            <img src="{{ photo.thumbnail }}" 
-                                 alt="{{ photo.display_name }}" 
-                                 loading="lazy"
-                                 onload="this.classList.add('loaded');">
-                            <div class="photo-overlay">
-                                <h3 class="text-white font-medium truncate">{{ photo.display_name }}</h3>
-                                <div class="flex flex-wrap gap-2 mt-1 mb-2">
-                                    <span class="text-xs text-white bg-black bg-opacity-30 px-2 py-1 rounded-full">{{ photo.date }}</span>
-                                    <span class="text-xs text-white bg-black bg-opacity-30 px-2 py-1 rounded-full">{{ photo.size }}</span>
-                                    <span class="text-xs text-white bg-black bg-opacity-30 px-2 py-1 rounded-full">{{ photo.dimensions }}</span>
-                                </div>
-                                <button class="mt-2 bg-white bg-opacity-20 hover:bg-opacity-30 text-white text-sm py-1 px-3 rounded-full backdrop-blur-sm transition-all" onclick="event.stopPropagation(); openModal('{{ photo.filename }}')">
-                                    <i class="fas fa-expand-alt mr-1"></i> 查看原图
-                                </button>
-                            </div>
-                        </div>
-                        <div class="photo-info">
-                            <h3 class="text-gray-800 font-medium truncate">{{ photo.display_name }}</h3>
-                            <p class="text-xs text-gray-500">{{ photo.date }}</p>
-                        </div>
-                    </div>
-                {% endfor %}
             </div>
         {% else %}
-            <div class="text-center py-16 bg-white rounded-lg shadow-sm">
-                <div class="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-primary-100 text-primary-600">
-                    <i class="fas fa-images text-2xl"></i>
-                </div>
-                <h2 class="text-2xl font-semibold text-gray-800 mb-2">暂无照片</h2>
-                <p class="text-gray-500 max-w-md mx-auto">请将您的照片放入photos文件夹中，系统将自动加载并展示</p>
-                <div class="mt-8">
-                    <a href="/" class="inline-flex items-center text-primary-600 hover:text-primary-700">
+            <div class="empty-state-container">
+                <div class="flex flex-col items-center justify-center text-center p-8">
+                    <div class="text-primary-300 mb-4">
+                        <i class="fas fa-camera-retro text-6xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">No Photos Yet</h2>
+                    <p class="text-gray-600 mb-6">Please place your photos in the photos folder and they will be automatically loaded and displayed</p>
+                    <button id="refreshBtn" class="bg-primary-600 hover:bg-primary-700 text-white font-medium px-6 py-3 rounded-lg shadow-md transition-all duration-300 flex items-center">
                         <i class="fas fa-sync-alt mr-2"></i>
-                        <span>刷新页面</span>
-                    </a>
+                        <span>Refresh Page</span>
+                    </button>
                 </div>
             </div>
         {% endif %}
     </main>
 
-    <!-- 回到顶部按钮 -->
+    <!-- Back to Top Button -->
     <button id="scrollTopBtn" class="scroll-top">
         <i class="fas fa-arrow-up"></i>
     </button>
 
-    <!-- 模态框 - 用于显示原图 -->
+    <!-- Modal - For Displaying Full-Size Images -->
     <div id="imageModal" class="modal">
         <span class="close" onclick="closeModal()">&times;</span>
         <div class="flex items-center justify-center h-full">
@@ -779,16 +806,16 @@
         </div>
     </div>
 
-    <!-- 页脚 -->
+    <!-- Footer -->
     <footer class="bg-gray-800 text-white py-10">
         <div class="container mx-auto px-4">
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <div class="mb-6 md:mb-0">
                     <div class="flex items-center">
                         <i class="fas fa-camera-retro text-2xl mr-2 text-primary-400"></i>
-                        <span class="text-xl font-bold">摄影集</span>
+                        <span class="text-xl font-bold">Photo Gallery</span>
                     </div>
-                    <p class="mt-2 text-gray-400 text-sm">记录生活中的美好瞬间</p>
+                    <p class="mt-2 text-gray-400 text-sm">Capturing life's beautiful moments</p>
                 </div>
                 <div class="flex space-x-6">
                     <a href="#" class="text-gray-400 hover:text-white transition-colors">
@@ -803,42 +830,101 @@
                 </div>
             </div>
             <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400 text-sm">
-                <p>&copy; {{ current_year if current_year else '2023' }} 个人摄影作品集. 保留所有权利.</p>
+                <p>&copy; {{ current_year if current_year else '2023' }} Personal Photography Portfolio. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
     <script>
-        // 当前显示的图片索引
+        // Current image index
         let currentIndex = 0;
-        // 所有照片的文件名数组
+        // Array of all photo filenames
         const photoFilenames = Array.from(document.querySelectorAll('.photo-card')).map(card => card.dataset.filename);
         
-        // 打开模态框显示原图
+        // Add click event for refresh button
+        document.addEventListener('DOMContentLoaded', function() {
+            const refreshBtn = document.getElementById('refreshBtn');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', function() {
+                    window.location.reload();
+                });
+            }
+            
+            // 添加Browse Gallery按钮的平滑滚动效果
+            const browseGalleryBtn = document.getElementById('browseGalleryBtn');
+            if (browseGalleryBtn) {
+                browseGalleryBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const gallerySection = document.getElementById('gallery');
+                    if (gallerySection) {
+                        // 使用变速滚动效果
+                        smoothScrollTo(gallerySection.offsetTop, 1000, 'easeInOutQuad');
+                    }
+                });
+            }
+        });
+        
+        // 平滑滚动函数
+        function smoothScrollTo(targetY, duration, easingFunction) {
+            const startY = window.scrollY;
+            const distance = targetY - startY;
+            let startTime = null;
+            
+            // 缓动函数集合
+            const easings = {
+                // 先慢后快再慢
+                easeInOutQuad: t => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t,
+                // 先快后慢
+                easeOutQuad: t => t * (2 - t),
+                // 先慢后快
+                easeInQuad: t => t * t
+            };
+            
+            // 选择缓动函数
+            const ease = easings[easingFunction] || easings.easeInOutQuad;
+            
+            function animate(currentTime) {
+                if (startTime === null) startTime = currentTime;
+                
+                const timeElapsed = currentTime - startTime;
+                const progress = Math.min(timeElapsed / duration, 1);
+                const easeProgress = ease(progress);
+                
+                window.scrollTo(0, startY + distance * easeProgress);
+                
+                if (timeElapsed < duration) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // Open modal to display full-size image
         function openModal(filename) {
             const modal = document.getElementById('imageModal');
             const modalImg = document.getElementById('modalImage');
             const loader = document.getElementById('imageLoader');
             
-            // 显示加载动画
+            // Show loading animation
             loader.style.display = 'block';
             modalImg.style.display = 'none';
             modalImg.classList.remove('show');
             
-            // 移除可能存在的错误消息
+            // Remove any existing error messages
             const errorMsgs = modal.querySelectorAll('.error-message');
             errorMsgs.forEach(msg => msg.remove());
             
-            // 设置当前索引
+            // Set current index
             currentIndex = photoFilenames.indexOf(filename);
             
-            // 显示模态框
+            // Show modal
             modal.style.display = "flex";
             setTimeout(() => {
                 modal.classList.add('show');
             }, 10);
             
-            // 加载图片
+            // Load image
             modalImg.onload = function() {
                 loader.style.display = 'none';
                 modalImg.style.display = 'block';
@@ -848,25 +934,25 @@
             };
             
             modalImg.onerror = function() {
-                console.error(`无法加载原图: ${filename}`);
+                console.error(`Failed to load image: ${filename}`);
                 loader.style.display = 'none';
-                // 显示一个错误消息
+                // Show error message
                 const errorMsg = document.createElement('div');
-                errorMsg.textContent = '图片加载失败';
+                errorMsg.textContent = 'Image failed to load';
                 errorMsg.style.color = 'white';
                 errorMsg.style.fontSize = '1.5rem';
                 errorMsg.className = 'error-message';
                 modal.querySelector('.flex.items-center').appendChild(errorMsg);
             };
             
-            // 加载原图
+            // Load full-size image
             modalImg.src = "/photos/" + filename;
             
-            // 禁止背景滚动
+            // Disable background scrolling
             document.body.style.overflow = "hidden";
         }
         
-        // 关闭模态框
+        // Close modal
         function closeModal() {
             const modal = document.getElementById('imageModal');
             const modalImg = document.getElementById('modalImage');
@@ -876,24 +962,24 @@
             
             setTimeout(() => {
                 modal.style.display = "none";
-                // 恢复背景滚动
+                // Restore background scrolling
                 document.body.style.overflow = "auto";
             }, 300);
         }
         
-        // 显示上一张图片
+        // Show previous image
         function showPrevImage() {
             currentIndex = (currentIndex - 1 + photoFilenames.length) % photoFilenames.length;
             openModal(photoFilenames[currentIndex]);
         }
         
-        // 显示下一张图片
+        // Show next image
         function showNextImage() {
             currentIndex = (currentIndex + 1) % photoFilenames.length;
             openModal(photoFilenames[currentIndex]);
         }
         
-        // 点击模态框背景也可以关闭
+        // Click on modal background to close
         window.onclick = function(event) {
             const modal = document.getElementById('imageModal');
             if (event.target == modal) {
@@ -901,7 +987,7 @@
             }
         };
         
-        // 键盘导航
+        // Keyboard navigation
         document.addEventListener('keydown', function(event) {
             if (document.getElementById('imageModal').style.display === 'flex') {
                 if (event.key === 'ArrowLeft') {
@@ -914,11 +1000,11 @@
             }
         });
         
-        // 设置上一张/下一张按钮事件
+        // Set previous/next button events
         document.getElementById('prevBtn').addEventListener('click', showPrevImage);
         document.getElementById('nextBtn').addEventListener('click', showNextImage);
         
-        // 回到顶部按钮
+        // Back to top button
         const scrollTopBtn = document.getElementById('scrollTopBtn');
         
         window.addEventListener('scroll', function() {
@@ -936,7 +1022,7 @@
             });
         });
         
-        // 暗黑模式切换
+        // Dark mode toggle
         const darkModeToggle = document.getElementById('darkModeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
         
@@ -945,24 +1031,24 @@
                 document.documentElement.classList.add('dark');
                 darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
                 
-                // 更新页面头部渐变色
+                // Update header gradient
                 const header = document.querySelector('header');
                 header.classList.remove('from-primary-600', 'to-purple-600');
                 header.classList.add('from-blue-900', 'to-indigo-900');
                 
-                // 更新波浪SVG颜色
+                // Update wave SVG color
                 const wavePath = document.querySelector('header svg path');
                 wavePath.setAttribute('fill', '#0f172a');
             } else {
                 document.documentElement.classList.remove('dark');
                 darkModeToggle.innerHTML = '<i class="fas fa-moon"></i>';
                 
-                // 恢复页面头部渐变色
+                // Restore header gradient
                 const header = document.querySelector('header');
                 header.classList.remove('from-blue-900', 'to-indigo-900');
                 header.classList.add('from-primary-600', 'to-purple-600');
                 
-                // 恢复波浪SVG颜色
+                // Restore wave SVG color
                 const wavePath = document.querySelector('header svg path');
                 wavePath.setAttribute('fill', '#f9fafb');
             }
@@ -976,88 +1062,67 @@
             updateDarkMode();
         });
         
-        // 获取照片网格容器
-        const photoGrid = document.getElementById('photoGrid');
-        
-        // 创建瀑布流布局
-        function createMasonryLayout() {
-            // 先获取所有原始照片卡片的数据，然后再清空容器
-            const originalCards = Array.from(document.querySelectorAll('.photo-card'));
-            console.log(`找到 ${originalCards.length} 张原始照片卡片`);
+        // Page load completion initialization - 使用DOMContentLoaded来提前创建布局
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOMContentLoaded event triggered');
             
-            if (originalCards.length === 0) {
-                console.error('没有找到照片卡片，保留当前布局');
+            // Remove body loading class
+            setTimeout(() => {
+                document.body.classList.remove('loading');
+            }, 100);
+            
+            // 立即初始化瀑布流布局，不等待window.load
+            initializeMasonryLayout();
+            
+            // 继续其他初始化
+            console.log(`Found ${photoFilenames.length} photos`);
+            updateStyles();
+            
+            // Initialize filter functionality
+            setTimeout(function() {
+                initFilters();
+                allPhotoCards = Array.from(document.querySelectorAll('.photo-card'));
+                updateFileTypeFilters();
+            }, 300);
+            
+            // Start checking cache status
+            checkCacheStatus();
+        });
+        
+        // 优化初始化瀑布流布局函数
+        function initializeMasonryLayout() {
+            const photoGrid = document.getElementById('photoGrid');
+            const photoData = document.getElementById('photoData');
+            
+            if (!photoData || !photoGrid) {
+                console.error('Required elements not found');
                 return;
             }
             
-            // 创建卡片克隆
-            const cardsData = originalCards.map(card => {
-                const clone = card.cloneNode(true);
-                // 确保克隆的卡片上有所有需要的数据和样式
-                clone.dataset.filename = card.dataset.filename;
-                clone.dataset.width = card.dataset.width;
-                clone.dataset.height = card.dataset.height;
-                clone.classList.add('masonry-item');
-                clone.style.opacity = '1';
-                clone.style.visibility = 'visible';
-                
-                // 设置图片容器的宽高比
-                const imgContainer = clone.querySelector('.photo-img-container');
-                const width = parseInt(card.dataset.width, 10);
-                const height = parseInt(card.dataset.height, 10);
-                
-                if (imgContainer && width && height) {
-                    // 计算宽高比
-                    const aspectRatio = width / height;
-                    
-                    // 对于宽图（比例大于或等于2:1的图片）特殊处理
-                    if (aspectRatio >= 2) {
-                        imgContainer.classList.add('wide-image');
-                        // 对于特别宽的图片，适当减小高度，避免太矮
-                        imgContainer.style.aspectRatio = `${width} / ${Math.max(height, width/2.5)}`;
-                    } else {
-                        // 常规图片使用原始宽高比
-                        imgContainer.style.aspectRatio = `${width} / ${height}`;
-                    }
-                    
-                    // 确保高度也会受到约束，避免原始尺寸溢出
-                    imgContainer.style.maxHeight = 'none';
-                    
-                    // 确保点击事件正确设置
-                    imgContainer.onclick = function() {
-                        openModal(clone.dataset.filename);
-                    };
-                    
-                    // 确保查看原图按钮事件正确
-                    const viewButton = imgContainer.querySelector('button');
-                    if (viewButton) {
-                        viewButton.onclick = function(event) {
-                            event.stopPropagation();
-                            openModal(clone.dataset.filename);
-                        };
-                    }
-                }
-                
-                return clone;
-            });
+            // 获取所有照片数据
+            const photosData = Array.from(photoData.querySelectorAll('.photo-card'));
+            console.log(`Found ${photosData.length} photo data items`);
             
-            // 现在可以安全地清空容器
+            if (photosData.length === 0) {
+                console.log('No photos to display');
+                return;
+            }
+            
+            // 清空网格
             photoGrid.innerHTML = '';
             
-            // 临时设置显示样式来获取正确的宽度
-            const originalDisplay = photoGrid.style.display;
-            photoGrid.style.opacity = '0';
+            // 临时设置可见以计算宽度
+            photoGrid.style.visibility = 'hidden';
             photoGrid.style.display = 'flex';
             
-            // 计算有多少列可以放入容器（基于固定列宽）
+            // 强制浏览器重新计算布局
+            void photoGrid.offsetWidth;
+            
+            // 计算列数
             const containerWidth = photoGrid.clientWidth;
-            const columnWidth = getColumnWidth(); // 获取当前视窗下的列宽
-            const gap = 16; // 列间距
+            const columnWidth = getColumnWidth();
+            const gap = 16;
             
-            // 恢复原始显示样式
-            photoGrid.style.display = originalDisplay || 'flex';
-            
-            // 计算可以放多少列（取整，不要小数列）
             let columnCount = Math.floor((containerWidth + gap) / (columnWidth + gap));
             
             // 小屏幕强制为1列
@@ -1065,10 +1130,10 @@
                 columnCount = 1;
             }
             
-            // 确保至少有1列
+            // 至少有1列
             columnCount = Math.max(1, columnCount);
             
-            console.log(`容器宽度: ${containerWidth}px, 列宽: ${columnWidth}px, 计算列数: ${columnCount}`);
+            console.log(`Container width: ${containerWidth}px, Column width: ${columnWidth}px, Calculated column count: ${columnCount}`);
             
             // 创建列
             const columns = [];
@@ -1076,165 +1141,182 @@
                 const column = document.createElement('div');
                 column.classList.add('masonry-column');
                 column.setAttribute('data-column-index', i);
-                column.style.opacity = '1';
-                column.style.visibility = 'visible';
                 photoGrid.appendChild(column);
                 columns.push(column);
             }
             
-            // 改进的分配方法：基于高度分配卡片到最短的列
+            // 列高度数组
             const columnHeights = new Array(columnCount).fill(0);
             
-            cardsData.forEach((card, index) => {
+            // 创建卡片并分配到列
+            photosData.forEach(photoData => {
+                // 创建新卡片
+                const card = createPhotoCard(photoData);
+                
                 // 找出当前高度最小的列
                 const minHeightIndex = columnHeights.indexOf(Math.min(...columnHeights));
                 columns[minHeightIndex].appendChild(card);
                 
                 // 更新列高度
-                const width = parseInt(card.dataset.width, 10) || 300;
-                const height = parseInt(card.dataset.height, 10) || 200;
+                const width = parseInt(photoData.dataset.width, 10) || 300;
+                const height = parseInt(photoData.dataset.height, 10) || 200;
                 const aspectRatio = width / height;
-                // 预估高度 = 卡片宽度 / 宽高比 + 信息栏高度(约60px)
                 const estimatedHeight = (columnWidth / aspectRatio) + 60;
-                
                 columnHeights[minHeightIndex] += estimatedHeight + gap;
             });
             
-            // 加载完成后，为图片添加loaded类
-            document.querySelectorAll('.photo-card img').forEach(img => {
-                if (img.complete) {
-                    img.classList.add('loaded');
-                } else {
-                    img.addEventListener('load', function() {
-                        img.classList.add('loaded');
-                    });
-                    
-                    img.addEventListener('error', function() {
-                        console.error(`图片加载失败: ${img.src}`);
-                        // 显示一个占位符或错误图标
-                        img.parentElement.classList.add('load-error');
-                    });
-                }
-            });
-            
-            console.log(`瀑布流布局创建完成，共 ${columnCount} 列，${cardsData.length} 张卡片`);
+            // 显示布局
+            setTimeout(() => {
+                photoGrid.classList.add('loaded');
+                photoGrid.style.visibility = 'visible';
+                photoGrid.style.opacity = '1';
+                
+                // 初始化懒加载
+                initLazyLoading();
+                
+                console.log('Masonry layout created and visible');
+            }, 100);
         }
         
-        // 根据当前窗口宽度获取列宽
+        // 创建照片卡片的辅助函数
+        function createPhotoCard(photoData) {
+            const filename = photoData.dataset.filename;
+            const width = photoData.dataset.width;
+            const height = photoData.dataset.height;
+            const thumbnail = photoData.dataset.thumbnail;
+            const displayName = photoData.dataset.displayname;
+            const date = photoData.dataset.date;
+            const size = photoData.dataset.size;
+            const dimensions = photoData.dataset.dimensions;
+            
+            // 创建卡片
+            const card = document.createElement('div');
+            card.className = 'photo-card bg-white rounded-lg shadow-sm overflow-hidden masonry-item lazy-loading';
+            card.dataset.filename = filename;
+            card.dataset.width = width;
+            card.dataset.height = height;
+            
+            // 创建图片容器
+            const imgContainer = document.createElement('div');
+            imgContainer.className = 'photo-img-container';
+            imgContainer.style.aspectRatio = `${width} / ${height}`;
+            imgContainer.onclick = function() {
+                openModal(filename);
+            };
+            
+            // 计算宽高比
+            const aspectRatio = width / height;
+            if (aspectRatio >= 2) {
+                imgContainer.classList.add('wide-image');
+                imgContainer.style.aspectRatio = `${width} / ${Math.max(height, width/2.5)}`;
+            }
+            
+            // 创建图片
+            const img = document.createElement('img');
+            img.dataset.src = thumbnail;
+            img.alt = displayName;
+            img.loading = 'lazy';
+            img.src = `data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 viewBox%3D%220 0 ${width} ${height}%22%3E%3C%2Fsvg%3E`;
+            
+            // 创建覆盖层
+            const overlay = document.createElement('div');
+            overlay.className = 'photo-overlay';
+            overlay.innerHTML = `
+                <h3 class="text-white font-medium truncate">${displayName}</h3>
+                <div class="flex flex-wrap gap-2 mt-1 mb-2">
+                    <span class="text-xs text-white bg-black bg-opacity-30 px-2 py-1 rounded-full">${date}</span>
+                    <span class="text-xs text-white bg-black bg-opacity-30 px-2 py-1 rounded-full">${size}</span>
+                    <span class="text-xs text-white bg-black bg-opacity-30 px-2 py-1 rounded-full">${dimensions}</span>
+                </div>
+                <button class="mt-2 bg-white bg-opacity-20 hover:bg-opacity-30 text-white text-sm py-1 px-3 rounded-full backdrop-blur-sm transition-all">
+                    <i class="fas fa-expand-alt mr-1"></i> View Full Size
+                </button>
+            `;
+            
+            // 创建信息区域
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'photo-info';
+            infoDiv.innerHTML = `
+                <h3 class="text-gray-800 font-medium truncate">${displayName}</h3>
+                <p class="text-xs text-gray-500">${date}</p>
+            `;
+            
+            // 组装卡片
+            imgContainer.appendChild(img);
+            imgContainer.appendChild(overlay);
+            card.appendChild(imgContainer);
+            card.appendChild(infoDiv);
+            
+            // 设置View Full Size按钮的点击事件
+            const viewButton = overlay.querySelector('button');
+            viewButton.onclick = function(event) {
+                event.stopPropagation();
+                openModal(filename);
+            };
+            
+            return card;
+        }
+
+        // 移除window.load初始化瀑布流的代码
+        window.addEventListener('load', function() {
+            console.log('Window load event triggered, all resources loaded');
+            
+            // 仅检查图片加载状态，不再重新创建布局
+            setTimeout(function() {
+                // 确保所有图片容器样式正确
+                document.querySelectorAll('.photo-img-container').forEach(container => {
+                    const img = container.querySelector('img');
+                    if (img && img.complete) {
+                        img.classList.add('loaded');
+                    }
+                });
+                
+                // 输出最终布局信息
+                const columns = document.querySelectorAll('.masonry-column');
+                const containerWidth = photoGrid.clientWidth;
+                console.log(`Final layout check - Container width: ${containerWidth}px, Actual column count: ${columns.length}`);
+            }, 1000);
+        });
+
+        // Get column width based on current viewport width
         function getColumnWidth() {
             if (window.innerWidth <= 640) {
-                return Math.min(450, window.innerWidth - 32); // 小屏幕，减去左右padding
+                return Math.min(450, window.innerWidth - 32); // Small screen, subtract left and right padding
             } else if (window.innerWidth < 768) {
-                return 300; // 默认列宽
+                return 300; // Default column width
             } else if (window.innerWidth < 1280) {
-                return 280; // 中等屏幕
+                return 280; // Medium screen
             } else {
-                return 260; // 大屏幕
+                return 260; // Large screen
             }
         }
         
-        // 页面加载完成后初始化布局
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOMContentLoaded 事件触发');
-            console.log(`已找到 ${photoFilenames.length} 张照片`);
-            
-            // 移除body的loading类，让页面平滑显示
-            setTimeout(() => {
-                document.body.classList.remove('loading');
-            }, 100);
-            
-            // 添加额外样式确保图片卡片可见
-            updateStyles();
-            
-            // 检查页面中的图片元素是否存在
-            const allImages = document.querySelectorAll('.photo-card img');
-            console.log(`页面中找到 ${allImages.length} 个图片元素`);
-            
-            // 确保所有图片都有loaded类
-            document.querySelectorAll('.photo-img-container img').forEach(img => {
-                if (img.complete) {
-                    img.classList.add('loaded');
-                } else {
-                    img.addEventListener('load', function() {
-                        img.classList.add('loaded');
-                    });
-                }
-            });
-            
-            // 立即显示页面内容，但瀑布流布局稍后初始化
-            document.body.classList.add('fade-in');
-            
-            // 初始化筛选功能（可以在DOM加载后就初始化）
-            setTimeout(function() {
-                initFilters();
-                // 预先加载一次所有照片卡片数据
-                allPhotoCards = Array.from(document.querySelectorAll('.photo-card'));
-                // 更新文件类型筛选状态
-                updateFileTypeFilters();
-            }, 300);
-            
-            // 开始检查缓存处理状态
-            checkCacheStatus();
-        });
-        
-        // 检查缓存处理状态
+        // Check cache processing status
         function checkCacheStatus() {
             fetch('/api/cache/status')
                 .then(response => response.json())
                 .then(data => {
+                    // 缓存处理信息只记录到控制台，不再显示UI元素
                     if (data.processing) {
-                        // 显示进度条
-                        const progressContainer = document.getElementById('cacheProgressContainer');
-                        progressContainer.classList.remove('hidden');
-                        
-                        // 更新进度条
-                        const progressBar = document.getElementById('cacheProgressBar');
-                        const progressText = document.getElementById('cacheProgressText');
-                        const progressDetail = document.getElementById('cacheProgressDetail');
-                        
-                        const percent = data.progress.percent;
-                        progressBar.style.width = `${percent}%`;
-                        progressText.textContent = `${percent}%`;
-                        
-                        const processed = data.progress.processed;
-                        const total = data.progress.total;
-                        progressDetail.textContent = `处理中... ${processed}/${total} 张图片`;
-                        
+                        console.log(`Cache processing: ${data.progress.percent}%, ${data.progress.processed}/${data.progress.total} images`);
                         // 继续检查
-                        setTimeout(checkCacheStatus, 1000);
+                        setTimeout(checkCacheStatus, 2000);
                     } else {
-                        // 隐藏进度条，但如果有完成信息则显示
-                        const progressContainer = document.getElementById('cacheProgressContainer');
-                        
                         if (data.progress.total > 0 && data.progress.processed > 0) {
-                            // 显示完成信息5秒
-                            const progressBar = document.getElementById('cacheProgressBar');
-                            const progressText = document.getElementById('cacheProgressText');
-                            const progressDetail = document.getElementById('cacheProgressDetail');
-                            
-                            progressContainer.classList.remove('hidden');
-                            progressBar.style.width = '100%';
-                            progressText.textContent = '100%';
-                            progressDetail.textContent = `完成! 已处理 ${data.progress.processed}/${data.progress.total} 张图片`;
-                            
-                            setTimeout(() => {
-                                progressContainer.classList.add('hidden');
-                            }, 5000);
-                        } else {
-                            progressContainer.classList.add('hidden');
+                            console.log(`Cache processing completed: ${data.progress.processed}/${data.progress.total} images`);
                         }
                     }
                 })
                 .catch(error => {
-                    console.error('检查缓存状态时出错:', error);
-                    // 出错时继续尝试
+                    console.error('Error checking cache status:', error);
+                    // Continue trying on error with longer delay
                     setTimeout(checkCacheStatus, 5000);
                 });
         }
         
-        // 修改CSS样式，确保瀑布流网格可见
+        // Modify CSS styles to ensure masonry grid and photo cards visible
         function updateStyles() {
-            // 创建一个新的style元素
+            // Create new style element
             const style = document.createElement('style');
             style.textContent = `
                 .masonry-grid.loaded {
@@ -1254,148 +1336,438 @@
                 }
             `;
             document.head.appendChild(style);
-            console.log('已添加额外样式确保瀑布流和图片卡片可见');
+            console.log('Extra styles added to ensure masonry and photo cards visible');
         }
 
-        // 在window.load事件中，确保所有资源加载完毕再初始化瀑布流
-        window.addEventListener('load', function() {
-            const photoGrid = document.getElementById('photoGrid');
-            const photosLoading = document.getElementById('photosLoading');
+        // Initialize filter functionality
+        function initFilters() {
+            console.log('Initializing filter functionality');
             
-            console.log('Window load 事件触发，所有资源已加载完成');
+            // Get filter button and panel
+            const filterBtn = document.getElementById('filterBtn');
+            const filterPanel = document.getElementById('filterPanel');
             
-            // 设置一个合理的延迟，确保窗口尺寸已经稳定
-            setTimeout(function() {
-                console.log('准备初始化瀑布流布局');
-                
-                // 先将photoGrid设置为可见但透明，以便正确计算宽度
-                photoGrid.style.removeProperty('display');
-                photoGrid.style.display = 'flex';
-                photoGrid.style.opacity = '0';
-                photoGrid.classList.add('masonry-grid'); // 确保添加了masonry-grid类
-                
-                // 强制浏览器重新计算布局
-                void photoGrid.offsetWidth;
-                
-                try {
-                    // 创建瀑布流布局
-                    createMasonryLayout();
-                    
-                    console.log('瀑布流布局初始化成功');
-                    
-                    // 确保布局可见
-                    photoGrid.style.opacity = '1';
-                } catch (error) {
-                    console.error('瀑布流布局初始化失败:', error);
-                    
-                    // 错误处理：如果布局创建失败，显示简单网格
-                    photoGrid.innerHTML = '';
-                    const originalCards = Array.from(document.querySelectorAll('.photo-card'));
-                    originalCards.forEach(card => {
-                        const clone = card.cloneNode(true);
-                        photoGrid.appendChild(clone);
-                    });
-                    
-                    photoGrid.style.display = 'grid';
-                    photoGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(250px, 1fr))';
-                    photoGrid.style.gap = '16px';
-                    photoGrid.style.opacity = '1';
-                }
-                
-                // 隐藏加载状态
-                photosLoading.style.opacity = '0';
-                setTimeout(() => {
-                    photosLoading.style.display = 'none';
-                    // 显示布局完成的照片网格 - 确保这个类被添加
-                    photoGrid.classList.add('loaded');
-                    
-                    // 额外检查 - 确保所有列都可见
-                    document.querySelectorAll('.masonry-column').forEach(column => {
-                        column.style.opacity = '1';
-                        column.style.visibility = 'visible';
-                    });
-                    
-                    // 确保所有照片卡片可见
-                    document.querySelectorAll('.photo-card').forEach(card => {
-                        card.style.opacity = '1';
-                        card.style.visibility = 'visible';
-                    });
-                    
-                    console.log('布局显示完成，已将loaded类添加到photoGrid');
-                }, 300);
-                
-            }, 800); // 增加延迟到800ms，确保有足够时间计算布局
-            
-            // 使用 Intersection Observer API 实现更高效的懒加载
-            if ('IntersectionObserver' in window) {
-                const imageObserver = new IntersectionObserver((entries, observer) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            const img = entry.target;
-                            const src = img.getAttribute('data-src');
-                            if (src) {
-                                img.src = src;
-                                img.removeAttribute('data-src');
-                            }
-                            observer.unobserve(img);
-                        }
-                    });
-                });
-                
-                // 获取所有带有 data-src 属性的图片
-                document.querySelectorAll('img[data-src]').forEach(img => {
-                    imageObserver.observe(img);
+            // Filter button click event
+            if (filterBtn) {
+                filterBtn.addEventListener('click', function() {
+                    filterPanel.classList.toggle('hidden');
                 });
             }
             
-            // 简单的布局检查
-            setTimeout(function() {
-                // 确保所有图片容器样式正确
-                document.querySelectorAll('.photo-img-container').forEach(container => {
-                    // 确保高度根据宽高比正确设置
-                    const card = container.closest('.photo-card');
-                    if (card) {
-                        const width = parseInt(card.dataset.width, 10);
-                        const height = parseInt(card.dataset.height, 10);
-                        
-                        if (width && height) {
-                            container.style.aspectRatio = `${width} / ${height}`;
-                        }
+            // Search input events
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', debounce(function() {
+                    applyFilters();
+                }, 300));
+            }
+            
+            // Sort dropdown events
+            const sortSelect = document.getElementById('sortSelect');
+            if (sortSelect) {
+                sortSelect.addEventListener('change', function() {
+                    applyFilters();
+                });
+            }
+            
+            // Apply filters button
+            const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+            if (applyFiltersBtn) {
+                applyFiltersBtn.addEventListener('click', function() {
+                    applyFilters();
+                    filterPanel.classList.add('hidden');
+                });
+            }
+            
+            // Reset filters button
+            const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+            if (resetFiltersBtn) {
+                resetFiltersBtn.addEventListener('click', function() {
+                    resetFilters();
+                    applyFilters();
+                });
+            }
+            
+            // File type filters
+            const fileTypeFilters = document.querySelectorAll('.file-type-filter');
+            fileTypeFilters.forEach(filter => {
+                filter.addEventListener('change', function() {
+                    updateFileTypeFilters();
+                });
+            });
+        }
+        
+        // Reset all filters
+        function resetFilters() {
+            // Reset search box
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) searchInput.value = '';
+            
+            // Reset sort to default
+            const sortSelect = document.getElementById('sortSelect');
+            if (sortSelect) sortSelect.value = 'date-desc';
+            
+            // Reset date range
+            const dateFrom = document.getElementById('dateFrom');
+            const dateTo = document.getElementById('dateTo');
+            if (dateFrom) dateFrom.value = '';
+            if (dateTo) dateTo.value = '';
+            
+            // Reset file type filters (all checked)
+            const fileTypeFilters = document.querySelectorAll('.file-type-filter');
+            fileTypeFilters.forEach(filter => {
+                filter.checked = true;
+            });
+            
+            console.log('All filters have been reset');
+        }
+        
+        // Apply filters
+        function applyFilters() {
+            console.log('Applying filters');
+            
+            // If photos haven't been loaded yet, load once
+            if (allPhotoCards.length === 0) {
+                allPhotoCards = Array.from(document.querySelectorAll('.photo-card'));
+            }
+            
+            // Get search keywords
+            const searchInput = document.getElementById('searchInput');
+            const searchText = searchInput ? searchInput.value.toLowerCase().trim() : '';
+            
+            // Get date range
+            const dateFrom = document.getElementById('dateFrom');
+            const dateTo = document.getElementById('dateTo');
+            const fromDate = dateFrom && dateFrom.value ? new Date(dateFrom.value) : null;
+            const toDate = dateTo && dateTo.value ? new Date(dateTo.value) : null;
+            
+            // Get file type filters
+            const fileTypeFilters = document.querySelectorAll('.file-type-filter:checked');
+            const selectedFileTypes = Array.from(fileTypeFilters).map(filter => filter.value).join(',').split(',');
+            
+            // Filter photos that match criteria
+            let filteredCards = allPhotoCards.filter(card => {
+                // Check search keywords
+                if (searchText) {
+                    const displayName = card.querySelector('.photo-info h3').textContent.toLowerCase();
+                    if (!displayName.includes(searchText)) {
+                        return false;
+                    }
+                }
+                
+                // Check date range
+                if (fromDate || toDate) {
+                    const dateText = card.querySelector('.photo-info p').textContent;
+                    const cardDate = parseDate(dateText);
+                    
+                    if (fromDate && cardDate < fromDate) {
+                        return false;
                     }
                     
-                    // 确保图片加载正确
-                    const img = container.querySelector('img');
-                    if (img && img.complete) {
-                        img.classList.add('loaded');
+                    if (toDate) {
+                        // Set toDate to end of day
+                        const endDate = new Date(toDate);
+                        endDate.setHours(23, 59, 59, 999);
+                        if (cardDate > endDate) {
+                            return false;
+                        }
                     }
+                }
+                
+                // Check file type
+                if (selectedFileTypes.length > 0) {
+                    const filename = card.dataset.filename;
+                    const fileExt = filename.substring(filename.lastIndexOf('.')).toLowerCase();
+                    if (!selectedFileTypes.includes(fileExt)) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            });
+            
+            // Apply sort
+            const sortSelect = document.getElementById('sortSelect');
+            if (sortSelect) {
+                const sortValue = sortSelect.value;
+                filteredCards = sortCards(filteredCards, sortValue);
+            }
+            
+            // Update display
+            updateDisplay(filteredCards);
+            
+            console.log(`Filter results: ${filteredCards.length} photos found`);
+        }
+        
+        // Parse date string, return Date object
+        function parseDate(dateStr) {
+            // Assume date format is "YYYY-MM-DD" or other common formats
+            try {
+                return new Date(dateStr);
+            } catch (e) {
+                console.error(`Date parsing failed: ${dateStr}`, e);
+                return new Date(0); // Return January 1, 1970
+            }
+        }
+        
+        // Sort photo cards
+        function sortCards(cards, sortValue) {
+            return [...cards].sort((a, b) => {
+                const dateA = a.querySelector('.photo-info p').textContent;
+                const dateB = b.querySelector('.photo-info p').textContent;
+                
+                const timeA = new Date(dateA).getTime();
+                const timeB = new Date(dateB).getTime();
+                
+                if (sortValue === 'date-asc') {
+                    return timeA - timeB;
+                } else {
+                    return timeB - timeA;
+                }
+            });
+        }
+        
+        // Update file type filter status
+        function updateFileTypeFilters() {
+            // Update apply filter button status
+            const applyBtn = document.getElementById('applyFiltersBtn');
+            const fileTypeFilters = document.querySelectorAll('.file-type-filter:checked');
+            
+            if (fileTypeFilters.length === 0) {
+                // If no file types selected, disable apply button
+                if (applyBtn) {
+                    applyBtn.disabled = true;
+                    applyBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            } else {
+                // Otherwise enable apply button
+                if (applyBtn) {
+                    applyBtn.disabled = false;
+                    applyBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            }
+        }
+        
+        // Update photo display
+        function updateDisplay(filteredCards) {
+            // Clear current display
+            const photoGrid = document.getElementById('photoGrid');
+            
+            // If no photos, show message
+            if (filteredCards.length === 0) {
+                photoGrid.innerHTML = `
+                    <div class="w-full text-center py-16">
+                        <div class="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-gray-100 text-gray-500">
+                            <i class="fas fa-search text-2xl"></i>
+                        </div>
+                        <h2 class="text-xl font-medium text-gray-700 mb-2">No matching photos found</h2>
+                        <p class="text-gray-500">Try adjusting your search criteria or filter options</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Rebuild masonry layout
+            photoGrid.innerHTML = '';
+            
+            // Use current column width and spacing to create empty columns
+            const containerWidth = photoGrid.clientWidth;
+            const columnWidth = getColumnWidth();
+            const gap = 16;
+            
+            let columnCount = Math.floor((containerWidth + gap) / (columnWidth + gap));
+            
+            // Small screens force to 1 column
+            if (window.innerWidth <= 640) {
+                columnCount = 1;
+            }
+            columnCount = Math.max(1, columnCount);
+            
+            // Create columns
+            const columns = [];
+            for (let i = 0; i < columnCount; i++) {
+                const column = document.createElement('div');
+                column.classList.add('masonry-column');
+                column.setAttribute('data-column-index', i);
+                photoGrid.appendChild(column);
+                columns.push(column);
+            }
+            
+            // Based on height to allocate cards to shortest column
+            const columnHeights = new Array(columnCount).fill(0);
+            
+            filteredCards.forEach(card => {
+                const clone = card.cloneNode(true);
+                clone.classList.add('masonry-item');
+                
+                // Get image aspect ratio
+                const width = parseInt(card.dataset.width, 10) || 300;
+                const height = parseInt(card.dataset.height, 10) || 200;
+                
+                // Set image container aspect ratio
+                const imgContainer = clone.querySelector('.photo-img-container');
+                if (imgContainer && width && height) {
+                    // Calculate aspect ratio
+                    const aspectRatio = width / height;
+                    
+                    // Special handling for wide images
+                    if (aspectRatio >= 2) {
+                        imgContainer.classList.add('wide-image');
+                        imgContainer.style.aspectRatio = `${width} / ${Math.max(height, width/2.5)}`;
+                    } else {
+                        imgContainer.style.aspectRatio = `${width} / ${height}`;
+                    }
+                    
+                    // Ensure click event is set correctly
+                    imgContainer.onclick = function() {
+                        openModal(clone.dataset.filename);
+                    };
+                }
+                
+                // Find current column with smallest height
+                const minHeightIndex = columnHeights.indexOf(Math.min(...columnHeights));
+                columns[minHeightIndex].appendChild(clone);
+                
+                // Update column height
+                const aspectRatio = width / height;
+                const estimatedHeight = (columnWidth / aspectRatio) + 60;
+                columnHeights[minHeightIndex] += estimatedHeight + gap;
+            });
+            
+            // Ensure image load effect
+            document.querySelectorAll('.photo-card img').forEach(img => {
+                if (img.complete) {
+                    img.classList.add('loaded');
+                } else {
+                    img.addEventListener('load', function() {
+                        img.classList.add('loaded');
+                    });
+                }
+            });
+        }
+        
+        // Debounce function to avoid frequent operations
+        function debounce(func, wait) {
+            let timeout;
+            return function() {
+                const context = this;
+                const args = arguments;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    func.apply(context, args);
+                }, wait);
+            };
+        }
+
+        // Initialize lazy loading functionality for photo cards
+        function initLazyLoading() {
+            console.log('Initializing lazy loading for photo cards');
+            
+            // 先隐藏所有卡片但不使用display:none
+            document.querySelectorAll('.photo-card').forEach(card => {
+                card.classList.add('lazy-loading');
+                // 移除display:none
+                
+                // 设置图片数据源，但不开始加载
+                const img = card.querySelector('img');
+                if (img && !img.dataset.src) {
+                    img.dataset.src = img.src;
+                    img.src = 'data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D"http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg" viewBox%3D"0 0 1 1"%3E%3C%2Fsvg%3E';
+                }
+            });
+            
+            // 使用Intersection Observer检测何时应该加载图片
+            if ('IntersectionObserver' in window) {
+                console.log('创建Intersection Observer');
+                const cardObserver = new IntersectionObserver((entries, observer) => {
+                    console.log(`检测到${entries.length}个元素`);
+                    entries.forEach(entry => {
+                        const card = entry.target;
+                        console.log(`元素 ${card.dataset.filename} 是否可见: ${entry.isIntersecting}`);
+                        
+                        if (entry.isIntersecting) {
+                            // 获取图片元素
+                            const img = card.querySelector('img');
+                            
+                            // 只有当图片完成加载后才显示卡片
+                            if (img && img.dataset.src) {
+                                console.log(`开始加载图片: ${img.dataset.src}`);
+                                
+                                img.onload = function() {
+                                    console.log(`图片加载完成: ${img.src}`);
+                                    // 图片加载完成后，显示整个卡片
+                                    card.classList.remove('lazy-loading');
+                                    card.classList.add('lazy-loaded');
+                                    img.classList.add('loaded');
+                                };
+                                
+                                // 开始加载图片
+                                img.src = img.dataset.src;
+                                delete img.dataset.src;
+                            }
+                            
+                            // 停止观察已处理的卡片
+                            observer.unobserve(card);
+                        }
+                    });
+                }, {
+                    // 提前开始加载，以便用户滚动到位置时图片已经准备好
+                    rootMargin: '300px 0px',
+                    threshold: 0.01
                 });
                 
-                // 输出最终布局信息
-                const columns = document.querySelectorAll('.masonry-column');
-                const containerWidth = photoGrid.clientWidth;
-                console.log(`最终布局检查 - 容器宽度: ${containerWidth}px, 实际列数: ${columns.length}`);
-            }, 1000);
-        });
-
-        // 当窗口大小改变时，重新计算瀑布流布局
-        let resizeTimer;
-        window.addEventListener('resize', function() {
-            // 使用防抖动函数避免频繁计算
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(function() {
-                console.log("窗口大小变化，重新创建瀑布流布局");
-                // 重新计算列宽和列数
-                const oldColumnCount = document.querySelectorAll('.masonry-column').length;
-                const containerWidth = photoGrid.clientWidth;
-                const columnWidth = getColumnWidth();
-                const newColumnCount = Math.floor((containerWidth + 16) / (columnWidth + 16));
+                // 开始观察所有卡片
+                document.querySelectorAll('.photo-card').forEach(card => {
+                    cardObserver.observe(card);
+                });
                 
-                // 只有当列数变化时才重新布局，提高性能
-                if (oldColumnCount !== newColumnCount || window.innerWidth <= 640) {
-                    createMasonryLayout();
+                console.log('Intersection Observer initialized for lazy loading');
+            } else {
+                // 不支持Intersection Observer的浏览器的备用方案
+                console.log('Intersection Observer not supported, using fallback');
+                loadVisibleCards();
+                
+                // 添加滚动和调整大小事件的监听器
+                window.addEventListener('scroll', debounce(loadVisibleCards, 200));
+                window.addEventListener('resize', debounce(loadVisibleCards, 200));
+            }
+        }
+        
+        // 修改回退方法，使其也遵循相同的加载策略
+        function loadVisibleCards() {
+            const cards = document.querySelectorAll('.photo-card.lazy-loading');
+            
+            cards.forEach(card => {
+                if (isElementInViewport(card)) {
+                    const img = card.querySelector('img');
+                    
+                    if (img && img.dataset.src) {
+                        img.onload = function() {
+                            // 图片加载完成后，显示整个卡片
+                            card.classList.remove('lazy-loading');
+                            card.classList.add('lazy-loaded');
+                            img.classList.add('loaded');
+                        };
+                        
+                        // 开始加载图片
+                        img.src = img.dataset.src;
+                        delete img.dataset.src;
+                    }
                 }
-            }, 300); // 增加延迟，提供更平滑的体验
-        });
+            });
+        }
+        
+        // Helper to check if element is in viewport
+        function isElementInViewport(el) {
+            const rect = el.getBoundingClientRect();
+            
+            return (
+                rect.top <= (window.innerHeight || document.documentElement.clientHeight) + 100 &&
+                rect.left >= 0 &&
+                rect.bottom >= -100 &&
+                rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+            );
+        }
     </script>
 </body>
 </html> 
