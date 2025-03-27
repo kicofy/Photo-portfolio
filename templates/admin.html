@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Ha22y Photography</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#232323',
+                        medium: '#4A4A4A',
+                        light: '#E7E7E7',
+                        accent: '#5A7CA6',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        title: ['Playfair Display', 'serif'],
+                    },
+                }
+            },
+            darkMode: 'class',
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #232323;
+            color: #E7E7E7;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .admin-card {
+            background-color: rgba(74, 74, 74, 0.2);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-input, .form-file {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #E7E7E7;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            border-color: #5A7CA6;
+            box-shadow: 0 0 0 2px rgba(90, 124, 166, 0.2);
+            outline: none;
+        }
+        
+        .btn-primary {
+            background-color: #5A7CA6;
+            color: #E7E7E7;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #4a6d97;
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background-color: #e53e3e;
+            color: #E7E7E7;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c53030;
+            transform: translateY(-2px);
+        }
+        
+        .photo-thumb {
+            position: relative;
+            overflow: hidden;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .photo-thumb:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .photo-actions {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 0.5rem;
+            background: rgba(0, 0, 0, 0.7);
+            transition: all 0.3s ease;
+            transform: translateY(100%);
+        }
+        
+        .photo-thumb:hover .photo-actions {
+            transform: translateY(0);
+        }
+        
+        /* Drop zone styles */
+        .upload-zone {
+            border: 2px dashed rgba(231, 231, 231, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .upload-zone.dragover {
+            border-color: #5A7CA6;
+            background-color: rgba(90, 124, 166, 0.1);
+        }
+        
+        /* Progress bar styles */
+        .progress-bar {
+            height: 6px;
+            background-color: #5A7CA6;
+            transition: width 0.3s ease;
+        }
+        
+        /* Loading animation */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top: 3px solid #5A7CA6;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-dark">
+    <header class="bg-dark/80 backdrop-blur-md sticky top-0 z-30 border-b border-white/5">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <a href="/" class="text-2xl font-title text-light flex items-center space-x-3">
+                    <span>Ha22y Photography</span>
+                </a>
+                <div class="flex items-center space-x-6">
+                    <a href="{{ url_for('logout') }}" class="text-light/70 hover:text-white transition-colors">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-8 flex-grow">
+        <div class="mb-8">
+            <h1 class="text-3xl font-title font-medium mb-2">Admin Dashboard</h1>
+            <p class="text-light/70">Manage your photo collection</p>
+        </div>
+        
+        <!-- Alert Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="mb-6 p-4 rounded 
+                        {% if category == 'error' %}bg-red-500/20 text-red-200 border border-red-500/30
+                        {% else %}bg-green-500/20 text-green-200 border border-green-500/30{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Upload Photos Card -->
+        <div class="admin-card p-6 mb-8">
+            <h2 class="text-xl font-medium mb-4">Upload Photos</h2>
+            
+            <form method="POST" action="{{ url_for('upload_photos') }}" enctype="multipart/form-data" id="uploadForm">
+                <div class="upload-zone p-8 text-center mb-4" id="uploadDropZone">
+                    <div class="mb-4">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-light/50"></i>
+                    </div>
+                    <p class="mb-2">Drag and drop images here or click to select files</p>
+                    <p class="text-sm text-light/50 mb-2">Supports JPG, JPEG, PNG and GIF formats</p>
+                    <p class="text-xs text-accent/80 mb-4">Supports images up to 500MB, system will automatically compress while maintaining high quality</p>
+                    <input type="file" name="photos" id="fileInput" class="hidden" multiple accept=".jpg,.jpeg,.png,.gif">
+                    <button type="button" id="selectFilesBtn" class="btn-primary px-6 py-2 rounded text-sm">
+                        Select Files
+                    </button>
+                </div>
+                
+                <!-- Selected Files Preview -->
+                <div id="filePreview" class="hidden mb-4">
+                    <h3 class="text-md font-medium mb-2">Selected Files (<span id="fileCount">0</span>)</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3" id="previewGrid">
+                        <!-- Dynamically inserted preview content -->
+                    </div>
+                </div>
+                
+                <!-- Upload Progress -->
+                <div id="uploadProgress" class="hidden mb-4">
+                    <div class="flex justify-between mb-1">
+                        <span>Upload & Processing Progress</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div class="w-full bg-light/10 rounded-full h-1.5">
+                        <div class="progress-bar rounded-full" id="progressBar" style="width: 0%"></div>
+                    </div>
+                    <p class="text-xs text-light/50 mt-2" id="progressStatus">Preparing...</p>
+                    
+                    <!-- Detailed Upload Info -->
+                    <div class="mt-4 text-xs text-light/70 hidden" id="uploadDetails">
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>Current File: <span id="currentFileUpload">-</span></div>
+                            <div>File Size: <span id="currentFileSize">-</span></div>
+                            <div>Chunk Progress: <span id="chunkProgress">-</span></div>
+                            <div>Time Remaining: <span id="timeRemaining">Calculating...</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end gap-4">
+                    <button type="button" id="chunkUploadBtn" class="btn-primary px-6 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-cloud-upload-alt mr-2"></i> Upload
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Photo Management Card -->
+        <div class="admin-card p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-medium">Photo Management</h2>
+                <div class="relative w-64">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-light/50"></i>
+                    </div>
+                    <input type="text" id="adminSearchInput" class="form-input w-full pl-10 pr-4 py-2 rounded" placeholder="Search photos...">
+                </div>
+            </div>
+            
+            <!-- Photo Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3" id="photoGrid">
+                {% for photo in photos %}
+                <div class="photo-thumb" data-name="{{ photo.filename }}">
+                    <img src="{{ photo.thumbnail }}" alt="{{ photo.filename }}" class="w-full h-36 object-cover">
+                    <div class="photo-actions flex justify-between">
+                        <div class="flex space-x-1">
+                            <button type="button" class="text-white hover:text-accent" onclick="renamePhoto('{{ photo.filename }}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button type="button" class="text-white hover:text-red-400" onclick="deletePhotoConfirm('{{ photo.filename }}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <span class="text-xs truncate">{{ photo.filename }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            {% if not photos %}
+            <div class="text-center py-8 text-light/50">
+                <i class="fas fa-photo-film text-3xl mb-2"></i>
+                <p>No photos found. Please upload some photos.</p>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+    
+    <footer class="mt-auto bg-dark/50 backdrop-blur-sm border-t border-white/5 py-6">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <p class="text-light/50 text-sm">© 2023 Ha22y Photography. All rights reserved.</p>
+                </div>
+                <div class="flex flex-col items-end">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-camera text-accent mr-2"></i>
+                        <span class="text-light/70 text-sm">Hasselblad X2D 100C, Nikon Z6II</span>
+                    </div>
+                    <a href="mailto:ha22y.xing@gmail.com" class="text-light/70 text-sm hover:text-accent transition-colors flex items-center">
+                        <i class="fas fa-envelope mr-2"></i>
+                        ha22y.xing@gmail.com
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Rename Photo Modal -->
+    <div id="renameModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
+            <div class="admin-card p-6">
+                <h3 class="text-xl font-medium mb-4">Rename Photo</h3>
+                <form id="renameForm" method="POST" action="{{ url_for('rename_photo') }}">
+                    <input type="hidden" id="oldFilename" name="old_filename">
+                    <div class="mb-4">
+                        <label for="newFilename" class="block mb-2 text-sm font-medium">New Filename</label>
+                        <input type="text" id="newFilename" name="new_filename" class="form-input w-full px-4 py-2 rounded" required>
+                        <p class="text-xs text-light/50 mt-1">No need to enter file extension, it will be preserved automatically</p>
+                    </div>
+                    <div class="flex justify-end gap-4">
+                        <button type="button" onclick="closeRenameModal()" class="px-4 py-2 rounded border border-light/20 hover:border-light/40">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn-primary px-4 py-2 rounded">
+                            Save
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Photo Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
+            <div class="admin-card p-6">
+                <h3 class="text-xl font-medium mb-4">Confirm Deletion</h3>
+                <p class="mb-6">Are you sure you want to delete this photo? This action cannot be undone.</p>
+                <form id="deleteForm" method="POST" action="{{ url_for('delete_photo') }}">
+                    <input type="hidden" id="deleteFilename" name="filename">
+                    <div class="flex justify-end gap-4">
+                        <button type="button" onclick="closeDeleteModal()" class="px-4 py-2 rounded border border-light/20 hover:border-light/40">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn-danger px-4 py-2 rounded">
+                            Delete
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get DOM elements
+            const uploadForm = document.getElementById('uploadForm');
+            const fileInput = document.getElementById('fileInput');
+            const filePreview = document.getElementById('filePreview');
+            const fileCount = document.getElementById('fileCount');
+            const previewGrid = document.getElementById('previewGrid');
+            const chunkUploadBtn = document.getElementById('chunkUploadBtn');
+            const uploadDropZone = document.getElementById('uploadDropZone');
+            const selectFilesBtn = document.getElementById('selectFilesBtn');
+            
+            // Upload progress related elements
+            const uploadProgress = document.getElementById('uploadProgress');
+            const uploadDetails = document.getElementById('uploadDetails');
+            const progressBar = document.getElementById('progressBar');
+            const progressPercent = document.getElementById('progressPercent');
+            const progressStatus = document.getElementById('progressStatus');
+            const currentFileUpload = document.getElementById('currentFileUpload');
+            const currentFileSize = document.getElementById('currentFileSize');
+            const chunkProgress = document.getElementById('chunkProgress');
+            const timeRemaining = document.getElementById('timeRemaining');
+            
+            // Upload status variables
+            let isUploading = false;
+            let activeUploads = [];
+            
+            // Chunk upload size setting (4MB)
+            const chunkSize = 4 * 1024 * 1024;
+            
+            // Format file size
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+            
+            // Format remaining time
+            function formatTimeRemaining(seconds) {
+                if (seconds < 60) {
+                    return `${Math.round(seconds)} sec`;
+                } else if (seconds < 3600) {
+                    return `${Math.round(seconds / 60)} min`;
+                } else {
+                    const hours = Math.floor(seconds / 3600);
+                    const minutes = Math.round((seconds % 3600) / 60);
+                    return `${hours}h ${minutes}m`;
+                }
+            }
+            
+            // Update file preview
+            function updateFilePreview() {
+                const files = fileInput.files;
+                if (files.length > 0) {
+                    filePreview.classList.remove('hidden');
+                    fileCount.textContent = files.length;
+                    previewGrid.innerHTML = '';
+                    
+                    // Enable upload button
+                    chunkUploadBtn.disabled = false;
+                    
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        
+                        // Create preview container
+                        const previewItem = document.createElement('div');
+                        previewItem.className = 'bg-light/5 rounded overflow-hidden';
+                        
+                        // File preview (if image)
+                        if (file.type.startsWith('image/')) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                const img = document.createElement('img');
+                                img.src = e.target.result;
+                                img.className = 'w-full h-24 object-cover';
+                                previewItem.appendChild(img);
+                            };
+                            reader.readAsDataURL(file);
+                        } else {
+                            // Non-image file shows icon
+                            const iconDiv = document.createElement('div');
+                            iconDiv.className = 'w-full h-24 flex items-center justify-center bg-light/10';
+                            iconDiv.innerHTML = '<i class="fas fa-file text-3xl text-light/50"></i>';
+                            previewItem.appendChild(iconDiv);
+                        }
+                        
+                        // File info
+                        const fileInfo = document.createElement('div');
+                        fileInfo.className = 'p-2 text-xs';
+                        
+                        // Limit filename length
+                        let displayName = file.name;
+                        if (displayName.length > 20) {
+                            const ext = displayName.substring(displayName.lastIndexOf('.'));
+                            displayName = displayName.substring(0, 17) + '...' + ext;
+                        }
+                        
+                        fileInfo.innerHTML = `
+                            <div class="truncate font-medium">${displayName}</div>
+                            <div class="text-light/50">${formatFileSize(file.size)}</div>
+                        `;
+                        previewItem.appendChild(fileInfo);
+                        
+                        previewGrid.appendChild(previewItem);
+                    }
+                } else {
+                    filePreview.classList.add('hidden');
+                    // Disable upload button when no files are selected
+                    chunkUploadBtn.disabled = true;
+                }
+            }
+            
+            // Select files button click event
+            selectFilesBtn.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            // File selection change event
+            fileInput.addEventListener('change', function() {
+                updateFilePreview();
+            });
+            
+            // Drag and drop functionality
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadDropZone.addEventListener(eventName, function(e) {
+                    e.preventDefault();
+                    uploadDropZone.classList.add('dragover');
+                }, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadDropZone.addEventListener(eventName, function(e) {
+                    e.preventDefault();
+                    uploadDropZone.classList.remove('dragover');
+                }, false);
+            });
+            
+            uploadDropZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                const dt = e.dataTransfer;
+                fileInput.files = dt.files;
+                updateFilePreview();
+            }, false);
+            
+            // Upload functionality
+            chunkUploadBtn.addEventListener('click', async function() {
+                if (isUploading) return;
+                
+                const files = fileInput.files;
+                if (files.length === 0) return;
+                
+                // Show upload progress area
+                uploadProgress.classList.remove('hidden');
+                uploadDetails.classList.remove('hidden');
+                progressBar.style.width = '0%';
+                progressPercent.textContent = '0%';
+                progressStatus.textContent = 'Preparing upload...';
+                
+                isUploading = true;
+                chunkUploadBtn.disabled = true;
+                
+                // Clear active uploads list
+                activeUploads = [];
+                
+                // Total progress calculation variables
+                let totalBytes = 0;
+                let uploadedBytes = 0;
+                let startTime = Date.now();
+                let lastUpdateTime = startTime;
+                let lastUploadedBytes = 0;
+                
+                // Calculate total size of all files
+                for (let i = 0; i < files.length; i++) {
+                    totalBytes += files[i].size;
+                }
+                
+                // Upload all files sequentially
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    
+                    // Update current file info
+                    currentFileUpload.textContent = file.name;
+                    currentFileSize.textContent = formatFileSize(file.size);
+                    
+                    try {
+                        // Step 1: Initialize upload
+                        const initResponse = await fetch('/admin/upload/initialize', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                filename: file.name,
+                                fileSize: file.size,
+                                totalChunks: Math.ceil(file.size / chunkSize)
+                            })
+                        });
+                        
+                        if (!initResponse.ok) {
+                            const errorData = await initResponse.json();
+                            throw new Error(errorData.message || 'Failed to initialize upload');
+                        }
+                        
+                        const initData = await initResponse.json();
+                        const uploadId = initData.uploadId;
+                        
+                        // Step 2: Upload chunks
+                        const totalChunks = Math.ceil(file.size / chunkSize);
+                        
+                        for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+                            const start = chunkIndex * chunkSize;
+                            const end = Math.min(file.size, start + chunkSize);
+                            const chunk = file.slice(start, end);
+                            
+                            // Update chunk progress display
+                            chunkProgress.textContent = `${chunkIndex + 1}/${totalChunks}`;
+                            
+                            // Create form data
+                            const formData = new FormData();
+                            formData.append('uploadId', uploadId);
+                            formData.append('chunkIndex', chunkIndex);
+                            formData.append('chunk', chunk, 'chunk');
+                            
+                            // Upload chunk
+                            const chunkResponse = await fetch('/admin/upload/chunk', {
+                                method: 'POST',
+                                body: formData
+                            });
+                            
+                            if (!chunkResponse.ok) {
+                                const errorData = await chunkResponse.json();
+                                throw new Error(errorData.message || 'Failed to upload chunk');
+                            }
+                            
+                            // Update uploaded bytes
+                            uploadedBytes += chunk.size;
+                            
+                            // Calculate overall progress percentage
+                            const overallProgress = (uploadedBytes / totalBytes) * 100;
+                            progressBar.style.width = `${overallProgress}%`;
+                            progressPercent.textContent = `${Math.round(overallProgress)}%`;
+                            
+                            // Calculate remaining time
+                            const now = Date.now();
+                            if (now - lastUpdateTime > 1000) { // Update once per second
+                                const elapsed = (now - startTime) / 1000; // Time elapsed in seconds
+                                const bytesPerSecond = uploadedBytes / elapsed; // Average speed
+                                if (bytesPerSecond > 0) {
+                                    const remainingBytes = totalBytes - uploadedBytes;
+                                    const remainingTime = remainingBytes / bytesPerSecond;
+                                    timeRemaining.textContent = formatTimeRemaining(remainingTime);
+                                }
+                                
+                                lastUpdateTime = now;
+                                lastUploadedBytes = uploadedBytes;
+                            }
+                            
+                            // Update upload status
+                            if (files.length > 1) {
+                                progressStatus.textContent = `Uploading... File ${i+1}/${files.length}`;
+                            } else {
+                                progressStatus.textContent = 'Uploading...';
+                            }
+                        }
+                        
+                        // Step 3: Complete upload
+                        progressStatus.textContent = 'Processing file...';
+                        
+                        const completeFormData = new FormData();
+                        completeFormData.append('uploadId', uploadId);
+                        
+                        const completeResponse = await fetch('/admin/upload/complete', {
+                            method: 'POST',
+                            body: completeFormData
+                        });
+                        
+                        if (!completeResponse.ok) {
+                            const errorData = await completeResponse.json();
+                            throw new Error(errorData.message || 'Failed to complete upload');
+                        }
+                        
+                        const completeData = await completeResponse.json();
+                        console.log('Upload completed:', completeData);
+                        
+                    } catch (error) {
+                        console.error('Upload failed:', error);
+                        progressStatus.textContent = `Upload failed: ${error.message}`;
+                        // Show error but continue to try uploading other files
+                    }
+                }
+                
+                // All files uploaded
+                progressStatus.textContent = 'All files uploaded, page will refresh soon...';
+                progressBar.style.width = '100%';
+                progressPercent.textContent = '100%';
+                
+                // 清理临时文件
+                try {
+                    const cleanupResponse = await fetch('/admin/upload/cleanup', {
+                        method: 'POST'
+                    });
+                    
+                    if (cleanupResponse.ok) {
+                        const cleanupData = await cleanupResponse.json();
+                        console.log('临时文件清理结果:', cleanupData);
+                    }
+                } catch (error) {
+                    console.error('临时文件清理失败:', error);
+                }
+                
+                // Refresh page after 3 seconds
+                setTimeout(() => {
+                    window.location.reload();
+                }, 3000);
+                
+                isUploading = false;
+            });
+            
+            // Photo management related
+            const adminSearchInput = document.getElementById('adminSearchInput');
+            const photoGrid = document.getElementById('photoGrid');
+            
+            // Photo search functionality
+            if (adminSearchInput) {
+                adminSearchInput.addEventListener('input', function() {
+                    const searchValue = this.value.toLowerCase();
+                    const photos = photoGrid.querySelectorAll('.photo-thumb');
+                    
+                    photos.forEach(photo => {
+                        const photoName = photo.dataset.name.toLowerCase();
+                        if (photoName.includes(searchValue)) {
+                            photo.style.display = '';
+                        } else {
+                            photo.style.display = 'none';
+                        }
+                    });
+                });
+            }
+        });
+        
+        // Photo rename functionality
+        const renameModal = document.getElementById('renameModal');
+        const oldFilenameInput = document.getElementById('oldFilename');
+        const newFilenameInput = document.getElementById('newFilename');
+        const renameForm = document.getElementById('renameForm');
+        
+        function renamePhoto(filename) {
+            // Get filename (without extension)
+            const extIndex = filename.lastIndexOf('.');
+            const nameWithoutExt = extIndex !== -1 ? filename.substring(0, extIndex) : filename;
+            
+            oldFilenameInput.value = filename;
+            newFilenameInput.value = nameWithoutExt;
+            renameModal.classList.remove('hidden');
+        }
+        
+        function closeRenameModal() {
+            renameModal.classList.add('hidden');
+        }
+        
+        // 使用AJAX提交重命名表单
+        if (renameForm) {
+            renameForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(renameForm);
+                
+                fetch(renameForm.action, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // 成功重命名，关闭模态框并刷新页面
+                        closeRenameModal();
+                        window.location.href = "{{ url_for('admin') }}";
+                    } else {
+                        // 显示错误信息
+                        alert('重命名失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('发生错误，请重试');
+                });
+            });
+        }
+        
+        // Photo delete functionality
+        const deleteModal = document.getElementById('deleteModal');
+        const deleteFilenameInput = document.getElementById('deleteFilename');
+        const deleteForm = document.getElementById('deleteForm');
+        
+        function deletePhotoConfirm(filename) {
+            deleteFilenameInput.value = filename;
+            deleteModal.classList.remove('hidden');
+        }
+        
+        function closeDeleteModal() {
+            deleteModal.classList.add('hidden');
+        }
+        
+        // 使用AJAX提交删除表单
+        if (deleteForm) {
+            deleteForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(deleteForm);
+                
+                fetch(deleteForm.action, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // 成功删除，关闭模态框并刷新页面
+                        closeDeleteModal();
+                        window.location.href = "{{ url_for('admin') }}";
+                    } else {
+                        // 显示错误信息
+                        alert('删除失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('发生错误，请重试');
+                });
+            });
+        }
+        
+        // Close modal with escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeRenameModal();
+                closeDeleteModal();
+            }
+        });
+        
+        // Close modal when clicking background
+        renameModal.querySelector('.absolute.inset-0').addEventListener('click', closeRenameModal);
+        deleteModal.querySelector('.absolute.inset-0').addEventListener('click', closeDeleteModal);
+    </script>
+</body>
+</html> 

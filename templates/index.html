@@ -53,7 +53,6 @@
                     },
                 },
             },
-            darkMode: 'class',
         }
     </script>
     <style>
@@ -202,163 +201,19 @@
             min-height: 50vh;
         }
         
-        /* Dark mode styles */
-        .dark body {
-            background-color: #121212; 
-            color: #E7E7E7;
-        }
-        
-        .dark .bg-dark {
-            background-color: #121212;
-        }
-        
-        .dark .bg-medium {
-            background-color: #232323;
-        }
-        
-        .dark .bg-light {
-            background-color: #333333;
-        }
-        
-        .dark .text-dark {
-            color: #FFFFFF;
-        }
-        
-        .dark .border-light {
-            border-color: #333333;
-        }
-        
-        .dark .text-gray-800 {
-            color: #f1f5f9;
-        }
-        
-        .dark .text-gray-700 {
-            color: #e2e8f0;
-        }
-        
-        .dark .text-gray-600 {
-            color: #cbd5e1;
-        }
-        
-        .dark .text-gray-500 {
-            color: #94a3b8;
-        }
-        
-        .dark .text-gray-400 {
-            color: #64748b;
-        }
-        
-        .dark .border-gray-300 {
-            border-color: #334155;
-        }
-        
-        .dark .border-gray-200 {
-            border-color: #1e293b;
-        }
-        
-        .dark .shadow-sm {
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
-        }
-        
-        .dark .shadow-md {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
-        }
-        
-        /* Dark mode card styles */
-        .dark .photo-card {
-            background-color: #1e293b;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-        }
-        
-        .dark .photo-card:hover {
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
-        }
-        
-        /* Dark mode image container styles */
-        .dark .photo-img-container {
-            background-color: #0f172a; /* Dark background */
-        }
-        
-        /* Dark mode image info styles */
-        .dark .photo-info {
-            background-color: #1e293b;
-        }
-        
-        /* Dark mode search and filter styles */
-        .dark input, .dark select {
-            background-color: #334155;
-            border-color: #475569;
-            color: #e2e8f0;
-        }
-        
-        .dark input::placeholder {
-            color: #94a3b8;
-        }
-        
-        .dark input:focus, .dark select:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
-        }
-        
-        /* Dark mode button styles */
-        .dark button.bg-gray-100 {
-            background-color: #334155;
-            color: #e2e8f0;
-        }
-        
-        .dark button.bg-gray-100:hover {
-            background-color: #475569;
-        }
-        
-        .dark button.bg-gray-200 {
-            background-color: #475569;
-            color: #e2e8f0;
-        }
-        
-        .dark button.bg-gray-200:hover {
-            background-color: #64748b;
-        }
-        
+        /* 图片悬停效果样式增强 */
         .photo-card {
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
             position: relative;
             overflow: hidden;
-            animation: fadeIn 0.5s ease-in-out;
-            background-color: white;
-            border-radius: 0.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* Add card lazy loading animation */
-        .photo-card.lazy-loading {
-            opacity: 0;
-            transform: translateY(20px);
-            visibility: hidden; /* 使用visibility而不是display属性 */
-            position: relative;
-            pointer-events: none; /* 防止与隐藏的卡片交互 */
-        }
-        
-        .photo-card.lazy-loaded {
-            opacity: 1;
-            transform: translateY(0);
-            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
-            visibility: visible; /* 显示已加载的卡片 */
-            pointer-events: auto;
-        }
-        
-        /* 移除加载状态动画，因为我们不希望显示未加载完成的卡片 */
-        .photo-img-container.loading::before {
-            display: none;
+            background-color: #232323;
+            border-radius: 0;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
         
         .photo-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
         }
         
         .photo-card:hover .photo-overlay {
@@ -928,6 +783,28 @@
         .photo-card:hover .photo-overlay {
             opacity: 1;
         }
+        
+        /* 添加卡片懒加载动画 */
+        .photo-card.lazy-loading {
+            opacity: 0;
+            transform: translateY(20px);
+            visibility: hidden; /* 使用visibility而不是display属性 */
+            position: relative;
+            pointer-events: none; /* 防止与隐藏的卡片交互 */
+        }
+        
+        .photo-card.lazy-loaded {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            visibility: visible; /* 显示已加载的卡片 */
+            pointer-events: auto;
+        }
+        
+        /* 移除加载状态动画，因为我们不希望显示未加载完成的卡片 */
+        .photo-img-container.loading::before {
+            display: none;
+        }
     </style>
 </head>
 <body class="bg-dark min-h-screen loading">
@@ -943,9 +820,9 @@
                     <span>Ha22y</span>
                 </a>
                 <div class="flex items-center space-x-6">
-                    <button class="text-light hover:text-white transition-colors" id="darkModeToggle">
-                        <i class="fas fa-moon"></i>
-                    </button>
+                    <a href="{{ url_for('login') }}" class="text-light/70 hover:text-white text-sm transition-colors" title="管理员登录">
+                        <i class="fas fa-lock"></i>
+                    </a>
                 </div>
             </div>
         </div>
@@ -990,12 +867,6 @@
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i class="fas fa-search text-light/50"></i>
                         </div>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                        <select id="sortSelect" class="px-4 py-2 border-0 border-b border-light/20 bg-transparent text-light focus:outline-none">
-                            <option value="date-desc">拍摄日期（最新优先）</option>
-                            <option value="date-asc">拍摄日期（最早优先）</option>
-                        </select>
                     </div>
                 </div>
             </div>
@@ -1047,11 +918,6 @@
         <div class="flex items-center justify-center h-full w-full">
             <div id="imageLoader" class="loader"></div>
             <img class="modal-content" id="modalImage">
-        </div>
-        
-        <!-- 照片详情信息 -->
-        <div class="photo-meta">
-            <p class="text-sm opacity-70 mb-2" id="modalPhotoDate">Date Taken</p>
         </div>
         
         <div class="modal-controls">
@@ -1243,14 +1109,6 @@
                     applyFilters();
                 }, 300));
             }
-            
-            // 排序下拉框事件
-            const sortSelect = document.getElementById('sortSelect');
-            if (sortSelect) {
-                sortSelect.addEventListener('change', function() {
-                    applyFilters();
-                });
-            }
         }
         
         // 应用筛选条件
@@ -1278,92 +1136,12 @@
                 return true;
             });
             
-            // 应用排序
-            const sortSelect = document.getElementById('sortSelect');
-            if (sortSelect) {
-                const sortValue = sortSelect.value;
-                filteredCards = sortCards(filteredCards, sortValue);
-            }
-            
             // 更新显示
             updateDisplay(filteredCards);
             
             console.log(`筛选结果: 找到 ${filteredCards.length} 张照片`);
         }
 
-        // 排序照片卡片
-        function sortCards(cards, sortValue) {
-            return [...cards].sort((a, b) => {
-                // 使用date属性中存储的原图修改日期
-                const dateA = a.dataset.date;
-                const dateB = b.dataset.date;
-                
-                // 解析为时间戳以进行比较
-                const timeA = parseDate(dateA).getTime();
-                const timeB = parseDate(dateB).getTime();
-                
-                if (sortValue === 'date-asc') {
-                    return timeA - timeB;
-                } else {
-                    return timeB - timeA;
-                }
-            });
-        }
-
-        // 解析日期字符串为Date对象，处理各种可能的日期格式
-        function parseDate(dateStr) {
-            if (!dateStr) return new Date(0);
-            
-            try {
-                // 尝试直接解析
-                const parsed = new Date(dateStr);
-                
-                // 检查是否为有效日期
-                if (!isNaN(parsed.getTime())) {
-                    return parsed;
-                }
-                
-                // 如果直接解析失败，尝试处理常见的格式
-                // 例如: "YYYY-MM-DD", "MM/DD/YYYY", "DD-MM-YYYY"等
-                const formats = [
-                    // ISO格式 YYYY-MM-DD
-                    /(\d{4})-(\d{2})-(\d{2})/,
-                    // 美式格式 MM/DD/YYYY
-                    /(\d{1,2})\/(\d{1,2})\/(\d{4})/,
-                    // 欧式格式 DD-MM-YYYY
-                    /(\d{1,2})-(\d{1,2})-(\d{4})/,
-                    // 有时间的格式 YYYY-MM-DD HH:MM:SS
-                    /(\d{4})-(\d{2})-(\d{2})[\sT](\d{2}):(\d{2}):(\d{2})/
-                ];
-                
-                for (const format of formats) {
-                    const match = dateStr.match(format);
-                    if (match) {
-                        if (format === formats[0]) {
-                            // YYYY-MM-DD
-                            return new Date(match[1], match[2] - 1, match[3]);
-                        } else if (format === formats[1]) {
-                            // MM/DD/YYYY
-                            return new Date(match[3], match[1] - 1, match[2]);
-                        } else if (format === formats[2]) {
-                            // DD-MM-YYYY
-                            return new Date(match[3], match[2] - 1, match[1]);
-                        } else if (format === formats[3]) {
-                            // YYYY-MM-DD HH:MM:SS
-                            return new Date(match[1], match[2] - 1, match[3], match[4], match[5], match[6]);
-                        }
-                    }
-                }
-                
-                // 兜底：如果所有格式都不匹配，返回当前日期
-                console.warn(`无法解析日期: ${dateStr}`);
-                return new Date();
-            } catch (e) {
-                console.error(`日期解析出错: ${dateStr}`, e);
-                return new Date();
-            }
-        }
-        
         // 防抖函数，避免频繁操作
         function debounce(func, wait) {
             let timeout;
@@ -1748,7 +1526,6 @@
             const modal = document.getElementById('imageModal');
             const modalImg = document.getElementById('modalImage');
             const loader = document.getElementById('imageLoader');
-            const photoDate = document.getElementById('modalPhotoDate');
             
             // 显示加载动画
             loader.style.display = 'block';
@@ -1771,9 +1548,6 @@
                 setTimeout(() => {
                     modalImg.classList.add('show');
                 }, 10);
-                
-                // 更新图片信息
-                updatePhotoInfo(filename);
             };
             
             // 加载全尺寸图片
@@ -1781,25 +1555,6 @@
             
             // 禁用背景滚动
             document.body.style.overflow = "hidden";
-        }
-        
-        // 更新照片信息
-        function updatePhotoInfo(filename) {
-            // 查找相应的照片卡片以获取数据
-            const photoCard = Array.from(document.querySelectorAll('.photo-card')).find(
-                card => card.dataset.filename === filename
-            );
-            
-            if (!photoCard) return;
-            
-            // 更新模态框中的照片信息 - 只保留日期
-            const photoDate = document.getElementById('modalPhotoDate');
-            
-            // 从数据属性获取信息
-            const date = photoCard.dataset.date || 'Unknown date';
-            
-            // 设置日期
-            if (photoDate) photoDate.textContent = date;
         }
         
         // 关闭模态框

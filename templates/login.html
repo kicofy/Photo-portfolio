@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Ha22y Photography</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#232323',
+                        medium: '#4A4A4A',
+                        light: '#E7E7E7',
+                        accent: '#5A7CA6',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        title: ['Playfair Display', 'serif'],
+                    },
+                }
+            },
+            darkMode: 'class',
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #232323;
+            color: #E7E7E7;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .login-form {
+            background-color: rgba(74, 74, 74, 0.2);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-input {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #E7E7E7;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            border-color: #5A7CA6;
+            box-shadow: 0 0 0 2px rgba(90, 124, 166, 0.2);
+            outline: none;
+        }
+        
+        .btn-login {
+            background-color: #5A7CA6;
+            color: #E7E7E7;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-login:hover {
+            background-color: #4a6d97;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-dark to-black">
+    <header class="py-6">
+        <div class="container mx-auto px-6">
+            <a href="/" class="text-2xl font-title text-light flex items-center space-x-3">
+                <span>Ha22y Photography</span>
+            </a>
+        </div>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center p-6">
+        <div class="w-full max-w-md">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-title font-medium mb-2">Admin Login</h1>
+                <p class="text-light/70">Please enter your admin credentials</p>
+            </div>
+            
+            <!-- Message alerts -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="mb-6 p-4 rounded 
+                            {% if category == 'error' %}bg-red-500/20 text-red-200 border border-red-500/30
+                            {% else %}bg-green-500/20 text-green-200 border border-green-500/30{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="login-form p-8">
+                <form method="POST" action="{{ url_for('login') }}">
+                    <div class="mb-6">
+                        <label for="username" class="block mb-2 text-sm font-medium text-light/90">Username</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-user text-light/50"></i>
+                            </div>
+                            <input type="text" id="username" name="username" class="form-input w-full pl-10 pr-4 py-3 rounded" placeholder="Enter username" required>
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <label for="password" class="text-sm font-medium text-light/90">Password</label>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-lock text-light/50"></i>
+                            </div>
+                            <input type="password" id="password" name="password" class="form-input w-full pl-10 pr-4 py-3 rounded" placeholder="Enter password" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-login w-full py-3 px-4 rounded font-medium">
+                        Login
+                    </button>
+                </form>
+            </div>
+            
+            <div class="mt-8 text-center text-light/50 text-sm">
+                <p>Return to <a href="/" class="text-accent hover:underline">Home</a></p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-8 text-center text-light/50 text-sm">
+        <div class="container mx-auto px-6">
+            <p>&copy; {{ current_year }} Ha22y Photography. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html> 
