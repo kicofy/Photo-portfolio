@@ -14,6 +14,7 @@ import base64
 import shutil
 import uuid
 import json
+from queue import Queue
 
 # 配置日志
 logging.basicConfig(
@@ -96,6 +97,15 @@ cache_status = {
     "processed": 0,
     "percent": 0,
     "last_update": None
+}
+
+# 添加全局变量来跟踪处理进度
+processing_status = {
+    "current_file": "",
+    "total_files": 0,
+    "processed_files": 0,
+    "current_operation": "",
+    "progress": 0
 }
 
 # 生成图片缓存的文件名
@@ -204,7 +214,7 @@ def generate_thumbnail(file_path, cache_path, max_size=THUMBNAIL_MAX_SIZE):
 # 压缩图片
 def optimize_image(input_path, output_path=None, quality=92, target_size_mb=5, preserve_size=False):
     """
-    优化图片大小但不损失画质 - 单次压缩模式
+    优化图片大小但不损失画质 - 智能压缩模式
     :param input_path: 输入图片路径
     :param output_path: 输出图片路径，如果为None则覆盖原图
     :param quality: 图片质量，范围1-100，默认92（高质量）
@@ -271,24 +281,39 @@ def optimize_image(input_path, output_path=None, quality=92, target_size_mb=5, p
                         return 0
             return 0
             
-        # 根据原始图片大小直接确定合适的压缩质量
+        # 智能压缩策略
         optimal_quality = 85  # 默认质量
         
-        # 根据图片大小进行简单的质量选择
+        # 根据图片大小和尺寸进行智能质量选择
         if original_size_mb > 100:  # 超大图片(>100MB)
-            optimal_quality = 70
+            if original_width > 4000 or original_height > 4000:
+                optimal_quality = 65  # 超大尺寸，使用较低质量
+            else:
+                optimal_quality = 70  # 普通超大图片
         elif original_size_mb > 50:  # 大图片(50-100MB)
-            optimal_quality = 75
+            if original_width > 3000 or original_height > 3000:
+                optimal_quality = 70
+            else:
+                optimal_quality = 75
         elif original_size_mb > 20:  # 中大图片(20-50MB)
-            optimal_quality = 80
+            if original_width > 2000 or original_height > 2000:
+                optimal_quality = 75
+            else:
+                optimal_quality = 80
         elif original_size_mb > 10:  # 中等图片(10-20MB)
-            optimal_quality = 82
+            if original_width > 1500 or original_height > 1500:
+                optimal_quality = 80
+            else:
+                optimal_quality = 82
         elif original_size_mb > 5:   # 小图片(5-10MB)
-            optimal_quality = 85
+            if original_width > 1000 or original_height > 1000:
+                optimal_quality = 82
+            else:
+                optimal_quality = 85
         else:                        # 极小图片(<5MB)
             optimal_quality = 90
             
-        logging.info(f"根据图片大小({original_size_mb:.1f}MB)选择压缩质量: {optimal_quality}")
+        logging.info(f"根据图片大小({original_size_mb:.1f}MB)和尺寸({original_width}x{original_height})选择压缩质量: {optimal_quality}")
         
         # 确定是否需要调整尺寸
         process_img = img
@@ -661,7 +686,69 @@ def upload_chunk():
         logging.error(f"Error uploading chunk: {e}")
         return jsonify({'success': False, 'message': f'Failed to upload chunk: {str(e)}'}), 500
 
-# 分块上传 - 完成上传
+# 添加图片处理队列
+from queue import Queue
+import threading
+
+# 创建处理队列
+processing_queue = Queue()
+processing_thread = None
+
+def process_queue():
+    """处理队列中的图片"""
+    while True:
+        try:
+            # 从队列获取任务
+            task = processing_queue.get()
+            if task is None:  # 退出信号
+                break
+                
+            file_path, target_path, preserve_size = task
+            
+            try:
+                # 更新处理状态
+                processing_status["current_file"] = os.path.basename(file_path)
+                processing_status["current_operation"] = "优化图片"
+                processing_status["progress"] = 0
+                
+                # 处理图片
+                compress_result = optimize_image(file_path, target_path, preserve_size=preserve_size)
+                processing_status["progress"] = 100
+                
+                # 生成缩略图
+                if os.path.exists(target_path):
+                    cache_filename = get_cache_filename(os.path.basename(target_path), THUMBNAIL_MAX_SIZE, THUMBNAIL_MAX_SIZE)
+                    cache_path = os.path.join(THUMBNAIL_FOLDER, cache_filename)
+                    generate_thumbnail(target_path, cache_path)
+                
+                logging.info(f"队列处理完成: {file_path}")
+            except Exception as e:
+                logging.error(f"队列处理出错: {e}")
+            finally:
+                processing_queue.task_done()
+                
+        except Exception as e:
+            logging.error(f"处理队列时出错: {e}")
+            time.sleep(1)  # 出错时等待一秒再继续
+
+def start_processing_thread():
+    """启动处理线程"""
+    global processing_thread
+    if processing_thread is None or not processing_thread.is_alive():
+        processing_thread = threading.Thread(target=process_queue, daemon=True)
+        processing_thread.start()
+        logging.info("图片处理线程已启动")
+
+def stop_processing_thread():
+    """停止处理线程"""
+    global processing_thread
+    if processing_thread and processing_thread.is_alive():
+        processing_queue.put(None)  # 发送退出信号
+        processing_thread.join()
+        processing_thread = None
+        logging.info("图片处理线程已停止")
+
+# 修改上传处理函数，使用队列处理
 @app.route('/admin/upload/complete', methods=['POST'])
 @login_required
 def complete_upload():
@@ -692,6 +779,11 @@ def complete_upload():
         original_filename = info['originalFilename']
         secure_name = secure_filename(original_filename)
         
+        # 更新处理状态
+        processing_status["current_file"] = original_filename
+        processing_status["current_operation"] = "合并分块"
+        processing_status["progress"] = 0
+        
         # 合并分块
         temp_merged_path = os.path.join(UPLOAD_FOLDER, f"temp_{secure_name}")
         os.makedirs(os.path.dirname(temp_merged_path), exist_ok=True)
@@ -704,6 +796,8 @@ def complete_upload():
                 if os.path.exists(chunk_path):
                     with open(chunk_path, 'rb') as chunk_file:
                         merged_file.write(chunk_file.read())
+                    # 更新进度
+                    processing_status["progress"] = int((i + 1) / info['totalChunks'] * 100)
                 else:
                     logging.error(f"无法找到分块: {chunk_path}")
                     return jsonify({'success': False, 'message': f'Chunk {i} is missing'}), 400
@@ -720,48 +814,13 @@ def complete_upload():
                 logging.info(f"创建文件备份: {os.path.basename(target_path)} -> {os.path.basename(backup_path)}")
             except Exception as backup_error:
                 logging.error(f"创建备份失败: {backup_error}")
-                # 继续处理，即使备份失败
         
-        # 优化图片并保存到最终位置
-        logging.info(f"开始优化图片: {temp_merged_path} -> {target_path}")
-        try:
-            compress_result = optimize_image(temp_merged_path, target_path, preserve_size=True)
-            logging.info(f"图片压缩完成，压缩率: {compress_result['compression_ratio']:.1f}%")
-            
-            # 确保缩略图目录存在
-            os.makedirs(THUMBNAIL_FOLDER, exist_ok=True)
-            
-            # 生成缩略图
-            cache_filename = get_cache_filename(secure_name, THUMBNAIL_MAX_SIZE, THUMBNAIL_MAX_SIZE)
-            cache_path = os.path.join(THUMBNAIL_FOLDER, cache_filename)
-            generate_thumbnail(target_path, cache_path)
-            logging.info(f"缩略图生成完成: {cache_path}")
-            
-        except Exception as img_error:
-            logging.error(f"处理图片时出错: {img_error}")
-            # 如果处理失败，使用原始文件
-            try:
-                if os.path.exists(temp_merged_path) and not os.path.exists(target_path):
-                    shutil.copy2(temp_merged_path, target_path)
-                    logging.info(f"处理失败，使用原始文件: {temp_merged_path} -> {target_path}")
-                    
-                    # 生成缩略图
-                    cache_filename = get_cache_filename(secure_name, THUMBNAIL_MAX_SIZE, THUMBNAIL_MAX_SIZE)
-                    cache_path = os.path.join(THUMBNAIL_FOLDER, cache_filename)
-                    generate_thumbnail(target_path, cache_path)
-                    logging.info(f"使用原始文件创建缩略图: {cache_path}")
-            except Exception as fallback_error:
-                logging.error(f"使用原始文件失败: {fallback_error}")
-                # 恢复备份
-                if backup_path and os.path.exists(backup_path):
-                    try:
-                        shutil.copy2(backup_path, target_path)
-                        logging.info(f"从备份恢复: {backup_path} -> {target_path}")
-                    except Exception as restore_error:
-                        logging.error(f"恢复备份失败: {restore_error}")
-                        return jsonify({'success': False, 'message': f'Image processing failed and backup restore failed: {str(restore_error)}'}), 500
-                else:
-                    return jsonify({'success': False, 'message': f'Image processing failed and no backup available: {str(fallback_error)}'}), 500
+        # 将图片添加到处理队列
+        processing_queue.put((temp_merged_path, target_path, True))
+        start_processing_thread()
+        
+        # 等待处理完成
+        processing_queue.join()
         
         # 清理临时文件和目录
         try:
@@ -784,7 +843,11 @@ def complete_upload():
             clean_temp_files()
         except Exception as cleanup_error:
             logging.error(f"清理临时文件时出错: {cleanup_error}")
-            # 继续处理，即使清理失败
+        
+        # 重置处理状态
+        processing_status["current_file"] = ""
+        processing_status["current_operation"] = ""
+        processing_status["progress"] = 0
         
         # 返回成功
         return jsonify({
@@ -812,6 +875,11 @@ def complete_upload():
             clean_temp_files()
         except Exception as error_cleanup_error:
             logging.error(f"错误处理中的清理失败: {error_cleanup_error}")
+            
+        # 重置处理状态
+        processing_status["current_file"] = ""
+        processing_status["current_operation"] = ""
+        processing_status["progress"] = 0
             
         return jsonify({'success': False, 'message': f'Failed to complete upload: {str(e)}'}), 500
 
@@ -922,8 +990,18 @@ def startup():
             app.cleanup_thread.start()
             logging.info("已启动定期清理临时文件任务")
         
+        # 启动图片处理线程
+        start_processing_thread()
+        
         app.startup_complete = True
         logging.info("应用程序启动...")
+
+# 修改应用关闭函数
+def shutdown():
+    """应用关闭时的清理工作"""
+    stop_processing_thread()
+    clean_temp_files()
+    logging.info("应用程序已关闭")
 
 @app.route('/')
 def index():
@@ -1367,6 +1445,13 @@ def cleanup_temp_files():
             'success': False,
             'message': f'清理临时文件时出错: {str(e)}'
         }), 500
+
+# 添加处理状态API
+@app.route('/admin/upload/processing-status', methods=['GET'])
+@login_required
+def get_processing_status():
+    """获取当前图片处理状态"""
+    return jsonify(processing_status)
 
 if __name__ == '__main__':
     logging.info("应用程序启动...")
