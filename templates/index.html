@@ -170,7 +170,7 @@
         }
         
         body.loading {
-            opacity: 0.6;
+            opacity: 0.9;  /* 调整为更高的不透明度，避免过于暗 */
         }
         
         /* 设置照片网格样式 */
@@ -807,7 +807,7 @@
         }
     </style>
 </head>
-<body class="bg-dark min-h-screen loading">
+<body class="bg-dark min-h-screen">
     <!-- 鼠标跟随指示器 -->
     <div class="cursor-dot"></div>
     <div class="cursor-outline"></div>
@@ -972,6 +972,9 @@
         
         // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', function() {
+            // 确保没有loading类，防止变暗效果
+            document.body.classList.remove('loading');
+            
             // 初始化鼠标跟随效果
             initMouseFollower();
             
@@ -1293,7 +1296,7 @@
             
             // 显示布局
             setTimeout(() => {
-                // 移除body加载状态
+                // 确保没有loading类
                 document.body.classList.remove('loading');
                 
                 photoGrid.classList.add('loaded');
